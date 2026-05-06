@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GatePass Runner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Fallback redirect (in case JS is disabled) -->
+  <meta http-equiv="refresh" content="2;url=login.html">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 40px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-top: 0;
+      opacity: 0.9;
+    }
+
+    a {
+      color: #ffd700;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>GatePass Runner</h1>
+    <p>Redirecting to Login...</p>
+    <p>If it doesn’t redirect, <a href="login.html">click here</a>.</p>
+  </div>
+
+  <script>
+    // Instant redirect
+    window.location.replace("login.html");
+  </script>
+</body>
+</html>
