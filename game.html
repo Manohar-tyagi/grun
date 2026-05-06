@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>University Gatepass Runner - CYBER EDITION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,25 +11,53 @@
             box-sizing: border-box;
         }
 
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
         body {
             overflow: hidden;
             font-family: 'VT323', monospace;
-            background: #0d0b1a;
+            background: #0a0a15;
+            touch-action: none;
+            overscroll-behavior: none;
         }
 
         canvas {
             display: block;
+        }
+
+        /* CRT Scanlines overlay */
+        body::before {
+            content: '';
             position: fixed;
             top: 0;
             left: 0;
-            z-index: -1;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg,
+                    rgba(0, 0, 0, 0.15),
+                    rgba(0, 0, 0, 0.15) 1px,
+                    transparent 1px,
+                    transparent 3px);
+            pointer-events: none;
+            z-index: 9998;
+            mix-blend-mode: multiply;
         }
 
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center,
+                    transparent 50%,
+                    rgba(0, 0, 0, 0.6) 100%);
+            pointer-events: none;
+            z-index: 9999;
+        }
 
-
-
-
-        /* ── FORM SCREEN ── */
+        /* ============ GATEPASS REQUEST FORM ============ */
         #formScreen {
             position: fixed;
             top: 0;
@@ -38,32 +65,79 @@
             width: 100%;
             height: 100vh;
             z-index: 200;
-            background: #0d0b1a;
+            background: linear-gradient(135deg, #0a0520 0%, #1a0a3a 50%, #0a0520 100%);
             overflow-y: auto;
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Back to center, but with margin on card */
             padding: 20px;
         }
 
+        #formScreen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(0, 240, 255, 0.12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.12) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            animation: gridMoveForm 25s linear infinite;
+        }
 
+        @keyframes gridMoveForm {
+            from {
+                background-position: 0 0;
+            }
 
+            to {
+                background-position: 50px 50px;
+            }
+        }
 
+        /* Glow orbs in background */
+        #formScreen .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: #ff00ff;
+            top: -50px;
+            left: -50px;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: #00f0ff;
+            bottom: -100px;
+            right: -100px;
+        }
 
         .form-card {
             position: relative;
             width: 100%;
-            max-width: 500px;
-            padding: 30px 40px;
-            background: rgba(15, 10, 40, 0.7);
+            max-width: 520px;
+            padding: 40px 45px;
+            background: rgba(15, 10, 40, 0.55);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(0, 240, 255, 0.4);
             border-radius: 20px;
-            box-shadow: 0 0 40px rgba(0, 240, 255, 0.3), 0 0 80px rgba(255, 0, 255, 0.1);
+            box-shadow:
+                0 0 40px rgba(0, 240, 255, 0.4),
+                0 0 80px rgba(255, 0, 255, 0.2),
+                inset 0 0 30px rgba(0, 240, 255, 0.05);
             z-index: 2;
-            margin: 20px 0;
-            /* Space for scrolling */
             animation: cardAppear 0.8s ease-out;
         }
 
@@ -96,7 +170,9 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 5px;
+            text-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
             filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.5));
+            letter-spacing: 1px;
         }
 
         .form-divider {
@@ -131,14 +207,18 @@
             font-family: 'VT323', monospace;
             font-size: 20px;
             outline: none;
-            transition: all .3s;
+            transition: all 0.3s ease;
             letter-spacing: 1px;
         }
 
         .cyber-input:focus,
         .cyber-textarea:focus {
             border-color: #00f0ff;
-            box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.2), 0 0 20px rgba(0, 240, 255, 0.5), inset 0 0 10px rgba(0, 240, 255, 0.1);
+            box-shadow:
+                0 0 0 2px rgba(0, 240, 255, 0.2),
+                0 0 20px rgba(0, 240, 255, 0.5),
+                inset 0 0 10px rgba(0, 240, 255, 0.1);
+            background: rgba(0, 20, 40, 0.7);
         }
 
         .cyber-input::placeholder,
@@ -158,6 +238,7 @@
             font-size: 16px;
             color: #00f0ff;
             margin-top: 5px;
+            letter-spacing: 1px;
             opacity: 0.7;
         }
 
@@ -176,7 +257,7 @@
             font-family: 'Press Start 2P', monospace;
             font-size: 10px;
             cursor: pointer;
-            transition: all .25s;
+            transition: all 0.25s ease;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
@@ -184,45 +265,64 @@
         .urgency-btn.casual {
             border-color: #00ff88;
             color: #00ff88;
-            box-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.3), inset 0 0 8px rgba(0, 255, 136, 0.05);
         }
 
         .urgency-btn.urgent {
             border-color: #ffff00;
             color: #ffff00;
-            box-shadow: 0 0 12px rgba(255, 255, 0, 0.3);
+            box-shadow: 0 0 12px rgba(255, 255, 0, 0.3), inset 0 0 8px rgba(255, 255, 0, 0.05);
         }
 
         .urgency-btn.life {
             border-color: #ff0066;
             color: #ff0066;
-            box-shadow: 0 0 12px rgba(255, 0, 102, 0.3);
+            box-shadow: 0 0 12px rgba(255, 0, 102, 0.3), inset 0 0 8px rgba(255, 0, 102, 0.05);
         }
 
         .urgency-btn:hover {
             transform: translateY(-3px);
         }
 
+        .urgency-btn.casual:hover {
+            background: rgba(0, 255, 136, 0.15);
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.7);
+        }
+
+        .urgency-btn.urgent:hover {
+            background: rgba(255, 255, 0, 0.15);
+            box-shadow: 0 0 25px rgba(255, 255, 0, 0.7);
+        }
+
+        .urgency-btn.life:hover {
+            background: rgba(255, 0, 102, 0.15);
+            box-shadow: 0 0 25px rgba(255, 0, 102, 0.7);
+        }
+
+        .urgency-btn.active {
+            transform: translateY(-3px);
+        }
+
         .urgency-btn.casual.active {
             background: rgba(0, 255, 136, 0.25);
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.9);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.9), inset 0 0 15px rgba(0, 255, 136, 0.3);
         }
 
         .urgency-btn.urgent.active {
             background: rgba(255, 255, 0, 0.25);
-            box-shadow: 0 0 30px rgba(255, 255, 0, 0.9);
+            box-shadow: 0 0 30px rgba(255, 255, 0, 0.9), inset 0 0 15px rgba(255, 255, 0, 0.3);
         }
 
         .urgency-btn.life.active {
             background: rgba(255, 0, 102, 0.25);
-            box-shadow: 0 0 30px rgba(255, 0, 102, 0.9);
+            box-shadow: 0 0 30px rgba(255, 0, 102, 0.9), inset 0 0 15px rgba(255, 0, 102, 0.3);
         }
 
         .submit-btn {
             width: 100%;
             margin-top: 30px;
             padding: 18px;
-            background: linear-gradient(90deg, #ff00ff, #aa00ff, #00f0ff);
+            background: linear-gradient(90deg, #ff00ff 0%, #aa00ff 50%, #00f0ff 100%);
             background-size: 200% 100%;
             border: none;
             border-radius: 10px;
@@ -231,13 +331,25 @@
             font-size: 14px;
             cursor: pointer;
             letter-spacing: 2px;
-            box-shadow: 0 0 30px rgba(255, 0, 255, 0.6), 0 0 60px rgba(0, 240, 255, 0.4);
-            transition: all .3s;
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+            box-shadow:
+                0 0 30px rgba(255, 0, 255, 0.6),
+                0 0 60px rgba(0, 240, 255, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .submit-btn:hover {
             background-position: 100% 0;
             transform: translateY(-3px) scale(1.02);
+            box-shadow:
+                0 0 50px rgba(255, 0, 255, 0.9),
+                0 0 100px rgba(0, 240, 255, 0.7);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px) scale(1);
         }
 
         .form-error {
@@ -250,81 +362,57 @@
             min-height: 24px;
         }
 
-        /* ── LOADING SCREEN ── */
-        #loadingScreen {
+        /* AI REVIEW LOADING SCREEN */
+        #reviewScreen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: 250;
-            background: rgba(5, 5, 16, 0.97);
+            background: rgba(5, 5, 16, 0.95);
             display: none;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            gap: 30px;
         }
 
-        .ld-title {
+        .review-text {
             font-family: 'Press Start 2P', monospace;
-            font-size: 18px;
+            font-size: 22px;
             color: #00f0ff;
             text-shadow: 0 0 20px #00f0ff;
-            letter-spacing: 3px;
-            animation: ldPulse 1s ease-in-out infinite alternate;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
         }
 
-        @keyframes ldPulse {
-            from {
-                opacity: 0.6;
-            }
-
-            to {
-                opacity: 1;
-            }
+        .review-status {
+            font-family: 'VT323', monospace;
+            font-size: 22px;
+            color: #fff;
+            margin-top: 20px;
+            min-height: 30px;
         }
 
-        .ld-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(0, 240, 255, 0.15);
-            border-top: 4px solid #00f0ff;
-            border-right: 4px solid #ff00ff;
-            border-radius: 50%;
-            animation: spin .8s linear infinite;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .ld-bar {
-            width: 300px;
-            height: 6px;
+        .loading-bar {
+            width: 350px;
+            height: 8px;
             background: rgba(0, 0, 20, 0.8);
             border: 1px solid #ff00ff;
             border-radius: 4px;
             overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
         }
 
-        .ld-bar-fill {
+        .loading-bar-fill {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, #ff00ff, #00f0ff);
-            animation: ldFill 1.2s ease-out forwards;
+            box-shadow: 0 0 15px #00f0ff;
+            transition: width 0.3s;
         }
 
-        @keyframes ldFill {
-            to {
-                width: 100%;
-            }
-        }
-
-        /* ── HUD ── */
+        /* ============ HUD ============ */
         #hud {
             position: fixed;
             top: 20px;
@@ -349,14 +437,15 @@
             border: 2px solid #ff00ff;
             margin-top: 12px;
             overflow: hidden;
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.6), inset 0 0 8px rgba(0, 0, 0, 0.8);
         }
 
         #progressBar {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, #ff00ff, #00f0ff);
-            transition: width .3s;
+            transition: width 0.3s;
+            box-shadow: 0 0 10px #00f0ff;
         }
 
         #instructions {
@@ -373,6 +462,7 @@
             background: rgba(10, 10, 30, 0.8);
             padding: 12px 24px;
             border: 2px solid #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
         }
 
         #gateAlert {
@@ -383,10 +473,10 @@
             color: #ff00ff;
             font-family: 'Press Start 2P', monospace;
             font-size: 36px;
-            text-shadow: 0 0 20px #ff00ff;
+            text-shadow: 0 0 20px #ff00ff, 4px 0 0 #00f0ff, -4px 0 0 #ffff00;
             z-index: 10;
             display: none;
-            animation: glitch .3s infinite alternate;
+            animation: glitch 0.3s infinite alternate;
         }
 
         @keyframes glitch {
@@ -398,8 +488,16 @@
                 transform: translateX(-50%) translate(-2px, 2px);
             }
 
+            40% {
+                transform: translateX(-50%) translate(-2px, -2px);
+            }
+
             60% {
                 transform: translateX(-50%) translate(2px, 2px);
+            }
+
+            80% {
+                transform: translateX(-50%) translate(2px, -2px);
             }
 
             100% {
@@ -415,8 +513,8 @@
             font-family: 'Press Start 2P', monospace;
             font-size: 14px;
             z-index: 10;
-            text-shadow: 0 0 15px #00ff88;
-            animation: blink .5s infinite alternate;
+            text-shadow: 0 0 15px #00ff88, 2px 0 0 #ff00ff;
+            animation: blink 0.5s infinite alternate;
         }
 
         @keyframes blink {
@@ -429,7 +527,95 @@
             }
         }
 
-        /* ── TITLE ── */
+        #endScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            flex-direction: column;
+            background: rgba(5, 5, 16, 0.85);
+            background-image:
+                linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .certificate {
+            padding: 40px 60px;
+            text-align: center;
+            animation: appear 0.5s ease-out;
+            font-family: 'VT323', monospace;
+            max-width: 600px;
+            border: 3px solid;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        @keyframes appear {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .approved {
+            background: linear-gradient(135deg, rgba(0, 40, 20, 0.95), rgba(0, 80, 40, 0.95));
+            color: #00ff88;
+            border-color: #00ff88;
+            box-shadow: 0 0 60px #00ff88, inset 0 0 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .rejected {
+            background: linear-gradient(135deg, rgba(40, 0, 20, 0.95), rgba(80, 0, 40, 0.95));
+            color: #ff0066;
+            border-color: #ff0066;
+            box-shadow: 0 0 60px #ff0066, inset 0 0 30px rgba(255, 0, 102, 0.2);
+        }
+
+        .certificate h1 {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px currentColor, 3px 0 0 #00f0ff, -3px 0 0 #ff00ff;
+        }
+
+        .certificate p {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+
+        .certificate button {
+            margin-top: 25px;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-family: 'Press Start 2P', monospace;
+            background: transparent;
+            color: currentColor;
+            border: 2px solid currentColor;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            box-shadow: 0 0 20px currentColor;
+            margin: 10px;
+        }
+
+        .certificate button:hover {
+            background: currentColor;
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        /* TITLE SCREEN */
         #title {
             position: fixed;
             top: 0;
@@ -447,18 +633,51 @@
 
         #title .grid-bg {
             position: absolute;
-            inset: 0;
-            background: #0d0b1a;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 240, 255, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.2) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 50px 50px;
+            }
+        }
+
+        #title::before {
+            content: '';
+            position: absolute;
+            bottom: 30%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff00ff, #00f0ff, #ff00ff, transparent);
+            box-shadow: 0 0 30px #ff00ff, 0 0 60px #00f0ff;
+            z-index: 0;
         }
 
         #title h1 {
             font-family: 'Press Start 2P', monospace;
             font-size: 56px;
             text-align: center;
-            background: linear-gradient(180deg, #ff66ff, #ff00ff, #aa00ff);
+            background: linear-gradient(180deg, #ff66ff 0%, #ff00ff 50%, #aa00ff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow:
+                4px 0 0 rgba(0, 240, 255, 0.7),
+                -4px 0 0 rgba(255, 255, 0, 0.7),
+                0 0 40px rgba(255, 0, 255, 0.8);
             margin-bottom: 15px;
             line-height: 1.3;
             position: relative;
@@ -496,7 +715,7 @@
             font-family: 'VT323', monospace;
             font-size: 26px;
             color: #00f0ff;
-            text-shadow: 0 0 15px #00f0ff;
+            text-shadow: 0 0 15px #00f0ff, 2px 0 0 #ff00ff;
             margin-bottom: 40px;
             letter-spacing: 3px;
             z-index: 2;
@@ -511,6 +730,7 @@
             position: relative;
             flex-wrap: wrap;
             justify-content: center;
+            padding: 0 20px;
         }
 
         .info-card {
@@ -520,21 +740,27 @@
             border: 2px solid;
             text-align: center;
             font-family: 'VT323', monospace;
+            backdrop-filter: blur(2px);
+            transition: transform 0.3s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
         }
 
         .info-card.pink {
             border-color: #ff00ff;
-            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5), inset 0 0 15px rgba(255, 0, 255, 0.1);
         }
 
         .info-card.yellow {
             border-color: #ffff00;
-            box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.5), inset 0 0 15px rgba(255, 255, 0, 0.1);
         }
 
         .info-card.blue {
             border-color: #00f0ff;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5), inset 0 0 15px rgba(0, 240, 255, 0.1);
         }
 
         .info-card .icon {
@@ -545,14 +771,17 @@
 
         .info-card.pink .icon {
             color: #ff00ff;
+            text-shadow: 0 0 15px #ff00ff;
         }
 
         .info-card.yellow .icon {
             color: #ffff00;
+            text-shadow: 0 0 15px #ffff00;
         }
 
         .info-card.blue .icon {
             color: #00f0ff;
+            text-shadow: 0 0 15px #00f0ff;
         }
 
         .info-card .label {
@@ -560,11 +789,13 @@
             font-size: 10px;
             color: #fff;
             margin-bottom: 8px;
+            letter-spacing: 1px;
         }
 
         .info-card .desc {
             font-size: 18px;
             color: #ccc;
+            line-height: 1.2;
         }
 
         .player-info {
@@ -581,114 +812,64 @@
             color: #ffff00;
         }
 
-        #startBtn {
+        .title-buttons {
+            display: flex;
+            gap: 20px;
+            z-index: 2;
+        }
+
+        .btn-style {
             position: relative;
-            padding: 22px 80px;
+            padding: 15px 40px;
             font-family: 'Press Start 2P', monospace;
-            font-size: 24px;
+            font-size: 18px;
             color: #fff;
-            background: linear-gradient(90deg, #00f0ff, #ff00ff);
             border: none;
             cursor: pointer;
-            letter-spacing: 4px;
-            box-shadow: 0 0 30px #00f0ff, 0 0 60px #ff00ff, inset 0 0 20px rgba(255, 255, 255, 0.2);
-            z-index: 2;
-            transition: transform .2s;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s;
             clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+        }
+
+        #startBtn {
+            background: linear-gradient(90deg, #00f0ff, #ff00ff);
+            box-shadow: 0 0 30px #00f0ff, 0 0 60px #ff00ff, inset 0 0 20px rgba(255, 255, 255, 0.2);
         }
 
         #startBtn:hover {
             transform: scale(1.08);
+            animation: btnPulse 0.5s infinite alternate;
         }
 
-        /* ── END SCREEN ── */
-        #endScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            flex-direction: column;
-            background: rgba(13, 11, 26, 0.95);
+        #lbBtn {
+            background: linear-gradient(90deg, #ffff00, #ff9900);
+            box-shadow: 0 0 30px #ffff00, 0 0 60px #ff9900, inset 0 0 20px rgba(255, 255, 255, 0.2);
         }
 
-        .certificate {
-            padding: 40px 60px;
-            text-align: center;
-            animation: appear .5s ease-out;
-            font-family: 'VT323', monospace;
-            max-width: 600px;
-            border: 3px solid;
-            position: relative;
+        #lbBtn:hover {
+            transform: scale(1.08);
+            animation: btnPulseLb 0.5s infinite alternate;
         }
 
-        @keyframes appear {
+        @keyframes btnPulse {
             from {
-                transform: scale(0);
-                opacity: 0;
+                box-shadow: 0 0 30px #00f0ff, 0 0 60px #ff00ff;
             }
 
             to {
-                transform: scale(1);
-                opacity: 1;
+                box-shadow: 0 0 50px #00f0ff, 0 0 100px #ff00ff;
             }
         }
 
-        .approved {
-            background: linear-gradient(135deg, rgba(0, 40, 20, 0.95), rgba(0, 80, 40, 0.95));
-            color: #00ff88;
-            border-color: #00ff88;
-            box-shadow: 0 0 60px #00ff88, inset 0 0 30px rgba(0, 255, 136, 0.2);
-        }
+        @keyframes btnPulseLb {
+            from {
+                box-shadow: 0 0 30px #ffff00, 0 0 60px #ff9900;
+            }
 
-        .rejected {
-            background: linear-gradient(135deg, rgba(40, 0, 20, 0.95), rgba(80, 0, 40, 0.95));
-            color: #ff0066;
-            border-color: #ff0066;
-            box-shadow: 0 0 60px #ff0066, inset 0 0 30px rgba(255, 0, 102, 0.2);
-        }
-
-        .certificate h1 {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 28px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 20px currentColor;
-        }
-
-        .certificate p {
-            font-size: 24px;
-            margin: 10px 0;
-        }
-
-        .cert-btn-row {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 25px;
-            flex-wrap: wrap;
-        }
-
-        .certificate button {
-            padding: 15px 30px;
-            font-size: 16px;
-            font-family: 'Press Start 2P', monospace;
-            background: transparent;
-            color: currentColor;
-            border: 2px solid currentColor;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all .2s;
-            box-shadow: 0 0 20px currentColor;
-        }
-
-        .certificate button:hover {
-            background: currentColor;
-            color: #000;
-            transform: scale(1.05);
+            to {
+                box-shadow: 0 0 50px #ffff00, 0 0 100px #ff9900;
+            }
         }
 
         #confetti {
@@ -700,112 +881,396 @@
             pointer-events: none;
             z-index: 99;
         }
+
+        .vhs-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 9997;
+            pointer-events: none;
+            animation: vhsScan 8s linear infinite;
+        }
+
+        @keyframes vhsScan {
+            from {
+                top: -10px;
+            }
+
+            to {
+                top: 110%;
+            }
+        }
+
+        /* ============ LEADERBOARD MODAL ============ */
+        #leaderboardModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 15, 0.95);
+            z-index: 300;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            backdrop-filter: blur(5px);
+        }
+
+        .lb-content {
+            background: rgba(20, 10, 40, 0.8);
+            border: 2px solid #00f0ff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.5), inset 0 0 20px rgba(255, 0, 255, 0.2);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .lb-title {
+            font-family: 'Press Start 2P', monospace;
+            color: #ff00ff;
+            text-shadow: 0 0 15px #ff00ff;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .lb-table {
+            width: 100%;
+            text-align: left;
+            border-collapse: collapse;
+            font-family: 'VT323', monospace;
+            font-size: 22px;
+        }
+
+        .lb-table th {
+            color: #ffff00;
+            border-bottom: 2px solid #ff00ff;
+            padding-bottom: 10px;
+            font-weight: normal;
+            letter-spacing: 2px;
+        }
+
+        .lb-table td {
+            padding: 10px 0;
+            color: #00f0ff;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .lb-close-btn {
+            margin-top: 25px;
+            padding: 12px 30px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            background: transparent;
+            color: #ff0066;
+            border: 2px solid #ff0066;
+            cursor: pointer;
+            transition: 0.2s;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 0 15px rgba(255, 0, 102, 0.4);
+        }
+
+        .lb-close-btn:hover {
+            background: #ff0066;
+            color: #000;
+            box-shadow: 0 0 25px rgba(255, 0, 102, 0.8);
+        }
     </style>
 </head>
 
 <body>
 
+    <div class="vhs-bar"></div>
 
-    <!-- FORM -->
+    <!-- ============ AUDIO SYSTEM (PING PONG NEON) ============ -->
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playNeonSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'jump') {
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(700, now + 0.15);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            }
+            else if (type === 'collect') { // Ping-Pong Neon Synthesizer
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(880, now); // A5
+                osc.frequency.setValueAtTime(1760, now + 0.08); // Jump to A6 quickly
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+                // Add a neon echo / delay effect
+                const delay = audioCtx.createDelay();
+                delay.delayTime.value = 0.12;
+                const feedback = audioCtx.createGain();
+                feedback.gain.value = 0.3; // Echo intensity
+
+                gain.connect(delay);
+                delay.connect(feedback);
+                feedback.connect(delay);
+
+                gain.connect(audioCtx.destination);
+                delay.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+            else if (type === 'crash') {
+                gain.connect(audioCtx.destination);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.3);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+            else if (type === 'click') {
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1200, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+            else if (type === 'celebrate') { // 8-bit Win Fanfare
+                gain.connect(audioCtx.destination);
+                osc.type = 'square';
+
+                // Fast major arpeggio (C5, E5, G5, C6, E6)
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                osc.frequency.setValueAtTime(1046.50, now + 0.3);
+                osc.frequency.setValueAtTime(1318.51, now + 0.4);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.setValueAtTime(0.2, now + 0.4);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
+
+                osc.start(now);
+                osc.stop(now + 1.0);
+            }
+            else if (type === 'lose') { // Sad pitch drop
+                gain.connect(audioCtx.destination);
+                osc.type = 'sawtooth';
+
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.8);
+
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+
+                osc.start(now);
+                osc.stop(now + 0.8);
+            }
+        }
+    </script>
+
+    <!-- ============ GATEPASS REQUEST FORM ============ -->
     <div id="formScreen">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+
         <div class="form-card">
             <div class="form-label-tag">FORM // GP-001</div>
             <h1 class="form-title">GATEPASS REQUEST</h1>
             <div class="form-divider"></div>
+
             <div class="input-group">
                 <label class="input-label">▸ STUDENT NAME</label>
                 <input type="text" id="studentName" class="cyber-input" placeholder="Enter your full name..."
                     maxlength="40">
             </div>
+
             <div class="input-group">
                 <label class="input-label">▸ REASON FOR EXIT</label>
                 <textarea id="reason" class="cyber-textarea" placeholder="State your reason..."
                     maxlength="200"></textarea>
                 <div class="char-counter"><span id="charCount">0</span> / 200</div>
             </div>
+
             <div class="input-group">
                 <label class="input-label">▸ URGENCY LEVEL</label>
                 <div class="urgency-row">
-                    <button class="urgency-btn casual" data-level="casual">CASUAL</button>
-                    <button class="urgency-btn urgent" data-level="urgent">URGENT</button>
-                    <button class="urgency-btn life" data-level="life">LIFE / DEATH</button>
+                    <button class="urgency-btn casual" data-level="casual"
+                        onclick="playNeonSound('click')">CASUAL</button>
+                    <button class="urgency-btn urgent" data-level="urgent"
+                        onclick="playNeonSound('click')">URGENT</button>
+                    <button class="urgency-btn life" data-level="life" onclick="playNeonSound('click')">LIFE /
+                        DEATH</button>
                 </div>
             </div>
-            <button class="submit-btn" id="submitBtn">SUBMIT REQUEST →</button>
+
+            <button class="submit-btn" id="submitBtn">SUBMIT FOR AI REVIEW →</button>
             <div class="form-error" id="formError"></div>
         </div>
     </div>
 
-    <!-- LOADING -->
-    <div id="loadingScreen">
-        <div class="ld-title">▸ LOADING GAME</div>
-        <div class="ld-spinner"></div>
-        <div class="ld-bar">
-            <div class="ld-bar-fill"></div>
+    <!-- ============ AI REVIEW LOADING ============ -->
+    <div id="reviewScreen">
+        <div class="review-text">▸ AI REVIEWING REQUEST</div>
+        <div class="loading-bar">
+            <div class="loading-bar-fill" id="loadingBarFill"></div>
         </div>
+        <div class="review-status" id="reviewStatus">Initializing...</div>
     </div>
 
-    <!-- TITLE -->
+    <!-- ============ TITLE SCREEN ============ -->
     <div id="title">
         <div class="grid-bg"></div>
         <h1>UNIVERSITY<br>GATEPASS<br>RUNNER</h1>
         <div class="subtitle">&gt; CYBER EDITION v2.0 _</div>
+
         <div class="player-info" id="playerInfoDisplay"></div>
+
         <div class="card-row">
-            <div class="info-card pink"><span class="icon">◈</span>
+            <div class="info-card pink">
+                <span class="icon">◈</span>
                 <div class="label">COLLECT</div>
-                <div class="desc">750 PTS<br>OF ID CARDS</div>
+                <div class="desc">375 PTS<br>OF ID CARDS</div>
             </div>
-            <div class="info-card yellow"><span class="icon">◢◣</span>
+            <div class="info-card yellow">
+                <span class="icon">◢◣</span>
                 <div class="label">DODGE</div>
                 <div class="desc">GUARDS<br>BARRICADES</div>
             </div>
-            <div class="info-card blue"><span class="icon">▲</span>
-                <div class="label">JUMP</div>
+            <div class="info-card blue">
+                <span class="icon">▲</span>
+                <div class="label">JUMP/DUCK</div>
                 <div class="desc">THE MAIN<br>GATE</div>
             </div>
         </div>
-        <button id="startBtn" onclick="startGame()">▶ START</button>
+
+        <div class="title-buttons">
+            <button id="startBtn" class="btn-style" onclick="startGame()">▶ START</button>
+            <button id="lbBtn" class="btn-style" onclick="showLeaderboard()">🏆 LEADERBOARD</button>
+        </div>
+    </div>
+
+    <!-- ============ LEADERBOARD MODAL ============ -->
+    <div id="leaderboardModal">
+        <div class="lb-content">
+            <h2 class="lb-title">GLOBAL RANKINGS</h2>
+            <div id="leaderboardData">
+                <!-- Generated via JS -->
+            </div>
+            <button class="lb-close-btn" onclick="closeLeaderboard()">[ CLOSE ]</button>
+        </div>
     </div>
 
     <div id="hud" style="display:none;">
         <div>SCORE: <span id="score">0</span></div>
-        <div style="font-size:10px;margin-top:5px;">GOAL: 750 PTS</div>
+        <div style="font-size:10px; margin-top:5px;">GOAL: 375 PTS</div>
         <div id="progress">
             <div id="progressBar"></div>
         </div>
     </div>
 
     <div id="guzarWarning" style="display:none;">🚔 GUZAR ON YOUR TAIL 🚔</div>
-    <div id="instructions" style="display:none;">← → / A,D : LANES &nbsp;|&nbsp; SPACE : JUMP</div>
+
+    <div id="instructions" style="display:none;">
+        ← → / A,D : LANES &nbsp;|&nbsp; SPACE/W : JUMP &nbsp;|&nbsp; S : DUCK
+    </div>
+
     <div id="gateAlert">⚠ MAIN GATE - JUMP! ⚠</div>
 
     <div id="endScreen">
         <canvas id="confetti"></canvas>
         <div id="certificate" class="certificate"></div>
+        <button id="lbBtnEnd" class="btn-style" onclick="showLeaderboard()" style="margin-top: 10px; z-index:102;">🏆
+            LEADERBOARD</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // ===== FORM =====
-        let playerData = { name: '', reason: '', urgency: '' };
-
-        // Pre-fill from portal sessionStorage if available
-        const rawUser = sessionStorage.getItem('gp_user');
-        if (rawUser) {
-            const u = JSON.parse(rawUser);
-            if (u.displayName) {
-                document.getElementById('studentName').value = u.displayName;
-                playerData.name = u.displayName;
-            }
+        // ============ LEADERBOARD SYSTEM ============
+        function saveScore(name, finalScore, timeTaken) {
+            let lb = JSON.parse(localStorage.getItem('cyberRunnerLB') || '[]');
+            lb.push({ name: name, score: Math.floor(finalScore), time: timeTaken.toFixed(1) });
+            // Sort descending by score. If scores are equal, sort by lowest time
+            lb.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.time - b.time;
+            });
+            lb = lb.slice(0, 10); // keep only top 10
+            localStorage.setItem('cyberRunnerLB', JSON.stringify(lb));
         }
 
+        function showLeaderboard() {
+            playNeonSound('click');
+            const modal = document.getElementById('leaderboardModal');
+            const dataContainer = document.getElementById('leaderboardData');
+
+            let lb = JSON.parse(localStorage.getItem('cyberRunnerLB') || '[]');
+
+            if (lb.length === 0) {
+                dataContainer.innerHTML = "<p style='text-align:center; color:#00f0ff; font-family: VT323; font-size:24px;'>NO RECORDS FOUND. BE THE FIRST!</p>";
+            } else {
+                let html = '<table class="lb-table">';
+                html += '<tr><th>RNK</th><th>CADET</th><th>PTS</th><th>TIME</th></tr>';
+                lb.forEach((entry, i) => {
+                    let color = i === 0 ? '#ffff00' : (i === 1 ? '#e0e0e0' : (i === 2 ? '#cd7f32' : '#00f0ff'));
+                    html += `<tr style="color:${color};">
+                        <td>#${i + 1}</td>
+                        <td>${entry.name}</td>
+                        <td>${entry.score}</td>
+                        <td>${entry.time}s</td>
+                     </tr>`;
+                });
+                html += '</table>';
+                dataContainer.innerHTML = html;
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeLeaderboard() {
+            playNeonSound('click');
+            document.getElementById('leaderboardModal').style.display = 'none';
+        }
+
+
+        // ============ FORM HANDLING ============
+        let playerData = {
+            name: '',
+            reason: '',
+            urgency: ''
+        };
+
         const reasonInput = document.getElementById('reason');
+        const charCount = document.getElementById('charCount');
+
         reasonInput.addEventListener('input', () => {
-            const n = reasonInput.value.length;
-            document.getElementById('charCount').textContent = n;
-            document.getElementById('charCount').style.color = n > 180 ? '#ff0066' : '#00f0ff';
+            charCount.textContent = reasonInput.value.length;
+            if (reasonInput.value.length > 180) {
+                charCount.style.color = '#ff0066';
+            } else {
+                charCount.style.color = '#00f0ff';
+            }
         });
+
         document.querySelectorAll('.urgency-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.urgency-btn').forEach(b => b.classList.remove('active'));
@@ -813,363 +1278,1074 @@
                 playerData.urgency = btn.dataset.level;
             });
         });
+
         document.getElementById('submitBtn').addEventListener('click', () => {
+            playNeonSound('click');
             const name = document.getElementById('studentName').value.trim();
             const reason = reasonInput.value.trim();
-            const err = document.getElementById('formError');
-            if (!name) { err.textContent = '⚠ ENTER YOUR NAME, CADET'; return; }
-            if (!reason) { err.textContent = '⚠ REASON FIELD REQUIRED'; return; }
-            if (!playerData.urgency) { err.textContent = '⚠ SELECT URGENCY LEVEL'; return; }
-            playerData.name = name; playerData.reason = reason; err.textContent = '';
+            const errEl = document.getElementById('formError');
 
+            if (!name) { errEl.textContent = '⚠ ENTER YOUR NAME, CADET'; return; }
+            if (!reason) { errEl.textContent = '⚠ REASON FIELD REQUIRED'; return; }
+            if (!playerData.urgency) { errEl.textContent = '⚠ SELECT URGENCY LEVEL'; return; }
+
+            playerData.name = name;
+            playerData.reason = reason;
+            errEl.textContent = '';
+
+            // Show AI review loading
             document.getElementById('formScreen').style.display = 'none';
-            const ls = document.getElementById('loadingScreen');
-            ls.style.display = 'flex';
+            document.getElementById('reviewScreen').style.display = 'flex';
 
-            setTimeout(() => {
-                ls.style.display = 'none';
-                document.getElementById('title').style.display = 'flex';
-                const uc = { casual: '#00ff88', urgent: '#ffff00', life: '#ff0066' };
-                document.getElementById('playerInfoDisplay').innerHTML =
-                    `CADET: <span>${playerData.name.toUpperCase()}</span> &nbsp;|&nbsp; STATUS: <span style="color:${uc[playerData.urgency]}">${playerData.urgency.toUpperCase()}</span>`;
-            }, 1400);
+            const statusMessages = [
+                'Initializing neural net...',
+                'Scanning student records...',
+                'Analyzing reason validity...',
+                'Cross-checking attendance...',
+                'Verifying urgency claim...',
+                'Approval granted ✓ Run authorized!'
+            ];
+
+            const fill = document.getElementById('loadingBarFill');
+            const status = document.getElementById('reviewStatus');
+            let step = 0;
+
+            const interval = setInterval(() => {
+                step++;
+                const pct = (step / statusMessages.length) * 100;
+                fill.style.width = pct + '%';
+                status.textContent = statusMessages[step - 1];
+
+                if (step === statusMessages.length) {
+                    clearInterval(interval);
+                    status.style.color = '#00ff88';
+                    status.style.textShadow = '0 0 15px #00ff88';
+
+                    setTimeout(() => {
+                        document.getElementById('reviewScreen').style.display = 'none';
+                        document.getElementById('title').style.display = 'flex';
+
+                        // Display player info on title screen
+                        const urgencyColors = {
+                            casual: '#00ff88',
+                            urgent: '#ffff00',
+                            life: '#ff0066'
+                        };
+                        document.getElementById('playerInfoDisplay').innerHTML = `
+          CADET: <span>${playerData.name.toUpperCase()}</span> &nbsp;|&nbsp; 
+          STATUS: <span style="color:${urgencyColors[playerData.urgency]}">${playerData.urgency.toUpperCase()}</span>
+        `;
+                    }, 800);
+                }
+            }, 600);
         });
 
-        // ===== GAME =====
+        // ============ GAME & SMOOTH PHYSICS VARIABLES ============
         let scene, camera, renderer, player, guzar;
         let obstacles = [], cards = [], buildings = [];
-        let gameSpeed = 0.4, score = 0, gameRunning = false, playerLane = 0;
+        let gameSpeed = 0.4;
+        let score = 0;
+        let gameRunning = false;
+        let playerLane = 0;
         const lanePositions = [-2.5, 0, 2.5];
+
+        // Upgraded smooth physics
         let playerY = 0, playerVY = 0, isJumping = false;
-        let mainGate = null, gateSpawned = false, gameEnded = false;
-        let clock, groundSegments = [], guzarDistance = 8;
-        let spawnTimer = 0, buildingTimer = 0, runCycle = 0;
-        const TARGET_SCORE = 750;
+        let isSliding = false, slideTimer = 0;
+        const GRAVITY = 55.0; // True gravity scaling
+        const JUMP_FORCE = 20.0;
+
+        let mainGate = null;
+        let gateSpawned = false;
+        let gameEnded = false;
+        let clock = new THREE.Clock();
+        let totalTime = 0;
+        let groundSegments = [];
+        let guzarDistance = 8;
+        const targetGuzarDist = 7;
+
+        const TARGET_SCORE = 375;
 
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x0a0520);
             scene.fog = new THREE.Fog(0x1a0a40, 25, 90);
+
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 4, 8); camera.lookAt(0, 1, 0);
-            renderer = new THREE.WebGLRenderer({ antialias: true });
+            camera.position.set(0, 4, 8);
+            camera.lookAt(0, 1, 0);
+
+            // Anti-aliased and pixel-ratio matched for buttery smooth visuals
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true;
             document.body.appendChild(renderer.domElement);
-            clock = new THREE.Clock();
 
-            scene.add(new THREE.AmbientLight(0x4040aa, 0.5));
-            const sun = new THREE.DirectionalLight(0xff66ff, 0.6); sun.position.set(10, 20, 5); scene.add(sun);
-            const cyan = new THREE.DirectionalLight(0x00f0ff, 0.5); cyan.position.set(-10, 15, -5); scene.add(cyan);
+            const ambient = new THREE.AmbientLight(0x4040aa, 0.5);
+            scene.add(ambient);
+            const sun = new THREE.DirectionalLight(0xff66ff, 0.6);
+            sun.position.set(10, 20, 5);
+            scene.add(sun);
+            const cyan = new THREE.DirectionalLight(0x00f0ff, 0.5);
+            cyan.position.set(-10, 15, -5);
+            scene.add(cyan);
 
-            for (let i = 0; i < 6; i++) createGroundSegment(-i * 20);
-            createPlayer(); createGuzar();
-            for (let i = 0; i < 20; i++) spawnBuilding(-i * 8);
+            for (let i = 0; i < 6; i++) {
+                createGroundSegment(-i * 20);
+            }
+
+            createPlayer();
+            createGuzar();
+
+            for (let i = 0; i < 20; i++) {
+                spawnBuilding(-i * 8);
+            }
+
             window.addEventListener('keydown', onKey);
             window.addEventListener('resize', onResize);
         }
 
         function createGroundSegment(z) {
-            const g = new THREE.Group();
-            const path = new THREE.Mesh(new THREE.PlaneGeometry(10, 20), new THREE.MeshStandardMaterial({ color: 0x1a1a2e }));
-            path.rotation.x = -Math.PI / 2; g.add(path);
+            const group = new THREE.Group();
+
+            const pathGeo = new THREE.PlaneGeometry(10, 20);
+            const pathMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e });
+            const path = new THREE.Mesh(pathGeo, pathMat);
+            path.rotation.x = -Math.PI / 2;
+            group.add(path);
+
             for (let i = 0; i < 5; i++) {
-                const lg = new THREE.PlaneGeometry(0.15, 2);
-                const l1 = new THREE.Mesh(lg, new THREE.MeshBasicMaterial({ color: 0xff00ff }));
-                l1.rotation.x = -Math.PI / 2; l1.position.set(-1.25, 0.01, -8 + i * 4); g.add(l1);
-                const l2 = new THREE.Mesh(lg, new THREE.MeshBasicMaterial({ color: 0x00f0ff }));
-                l2.rotation.x = -Math.PI / 2; l2.position.set(1.25, 0.01, -8 + i * 4); g.add(l2);
+                const lineGeo = new THREE.PlaneGeometry(0.15, 2);
+                const lineMat1 = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+                const line1 = new THREE.Mesh(lineGeo, lineMat1);
+                line1.rotation.x = -Math.PI / 2;
+                line1.position.set(-1.25, 0.01, -8 + i * 4);
+                group.add(line1);
+
+                const lineMat2 = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+                const line2 = new THREE.Mesh(lineGeo, lineMat2);
+                line2.rotation.x = -Math.PI / 2;
+                line2.position.set(1.25, 0.01, -8 + i * 4);
+                group.add(line2);
             }
-            const eg = new THREE.PlaneGeometry(0.3, 20);
-            const eL = new THREE.Mesh(eg, new THREE.MeshBasicMaterial({ color: 0xff00ff }));
-            eL.rotation.x = -Math.PI / 2; eL.position.set(-5, 0.02, 0); g.add(eL);
-            const eR = new THREE.Mesh(eg, new THREE.MeshBasicMaterial({ color: 0x00f0ff }));
-            eR.rotation.x = -Math.PI / 2; eR.position.set(5, 0.02, 0); g.add(eR);
-            const gg = new THREE.PlaneGeometry(20, 20);
-            const gm = new THREE.MeshStandardMaterial({ color: 0x0a0a25 });
-            const gL = new THREE.Mesh(gg, gm); gL.rotation.x = -Math.PI / 2; gL.position.set(-15, -0.01, 0); g.add(gL);
-            const gR = new THREE.Mesh(gg, gm); gR.rotation.x = -Math.PI / 2; gR.position.set(15, -0.01, 0); g.add(gR);
-            g.position.z = z; scene.add(g); groundSegments.push(g);
+
+            const edgeGeo = new THREE.PlaneGeometry(0.3, 20);
+            const edgeMatL = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+            const edgeL = new THREE.Mesh(edgeGeo, edgeMatL);
+            edgeL.rotation.x = -Math.PI / 2;
+            edgeL.position.set(-5, 0.02, 0);
+            group.add(edgeL);
+            const edgeMatR = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+            const edgeR = new THREE.Mesh(edgeGeo, edgeMatR);
+            edgeR.rotation.x = -Math.PI / 2;
+            edgeR.position.set(5, 0.02, 0);
+            group.add(edgeR);
+
+            const grassGeo = new THREE.PlaneGeometry(20, 20);
+            const grassMat = new THREE.MeshStandardMaterial({ color: 0x0a0a25 });
+            const grassL = new THREE.Mesh(grassGeo, grassMat);
+            grassL.rotation.x = -Math.PI / 2;
+            grassL.position.set(-15, -0.01, 0);
+            group.add(grassL);
+            const grassR = new THREE.Mesh(grassGeo, grassMat);
+            grassR.rotation.x = -Math.PI / 2;
+            grassR.position.set(15, -0.01, 0);
+            group.add(grassR);
+
+            for (let i = -2; i <= 2; i++) {
+                const g1 = new THREE.Mesh(
+                    new THREE.PlaneGeometry(20, 0.05),
+                    new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.4 })
+                );
+                g1.rotation.x = -Math.PI / 2;
+                g1.position.set(-15, 0, i * 4);
+                group.add(g1);
+                const g2 = g1.clone();
+                g2.position.set(15, 0, i * 4);
+                group.add(g2);
+            }
+
+            group.position.z = z;
+            scene.add(group);
+            groundSegments.push(group);
         }
 
+        // Create text label for "GUZAR" tag above the guard
         function createTextSprite(text, color = '#00ff88') {
-            const cv = document.createElement('canvas'); cv.width = 256; cv.height = 80;
-            const ctx = cv.getContext('2d');
-            ctx.fillStyle = 'rgba(0,20,0,0.85)'; ctx.fillRect(0, 0, 256, 80);
-            ctx.strokeStyle = color; ctx.lineWidth = 4; ctx.strokeRect(4, 4, 248, 72);
-            ctx.shadowColor = color; ctx.shadowBlur = 15; ctx.fillStyle = color;
-            ctx.font = 'bold 42px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 80;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = 'rgba(0, 20, 0, 0.85)';
+            ctx.fillRect(0, 0, 256, 80);
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 4;
+            ctx.strokeRect(4, 4, 248, 72);
+
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = color;
+            ctx.font = 'bold 42px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
             ctx.fillText(text, 128, 40);
-            const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true }));
-            sp.scale.set(2, 0.625, 1); return sp;
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(2, 0.625, 1);
+            return sprite;
         }
 
         function createPlayer() {
             player = new THREE.Group();
-            const addBox = (w, h, d, color, x, y, z, name) => {
-                const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color }));
-                m.position.set(x, y, z); if (name) m.name = name; player.add(m); return m;
-            };
-            addBox(0.6, 0.7, 0.4, 0x00f0ff, 0, 1.0, 0);
-            addBox(0.4, 0.4, 0.4, 0xffd1a4, 0, 1.55, 0);
-            addBox(0.42, 0.12, 0.42, 0x222222, 0, 1.78, 0);
-            addBox(0.55, 0.7, 0.25, 0xff00ff, 0, 1.0, -0.32);
-            addBox(0.55, 0.3, 0.42, 0x222244, 0, 0.5, 0);
-            addBox(0.22, 0.5, 0.22, 0xffd1a4, -0.15, 0.25, 0, 'legL');
-            addBox(0.22, 0.5, 0.22, 0xffd1a4, 0.15, 0.25, 0, 'legR');
-            addBox(0.26, 0.12, 0.32, 0xffffff, -0.15, 0.06, 0.05, 'shoeL');
-            addBox(0.26, 0.12, 0.32, 0xffffff, 0.15, 0.06, 0.05, 'shoeR');
-            addBox(0.18, 0.55, 0.2, 0xffd1a4, -0.4, 0.95, 0, 'armL');
-            addBox(0.18, 0.55, 0.2, 0xffd1a4, 0.4, 0.95, 0, 'armR');
-            player.position.set(0, 0, 2); scene.add(player);
+
+            const bodyGeo = new THREE.BoxGeometry(0.6, 0.7, 0.4);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x004466, emissiveIntensity: 0.3 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 1.0;
+            player.add(body);
+
+            const headGeo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xffd1a4 });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 1.55;
+            player.add(head);
+
+            const hairGeo = new THREE.BoxGeometry(0.42, 0.12, 0.42);
+            const hairMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+            const hair = new THREE.Mesh(hairGeo, hairMat);
+            hair.position.y = 1.78;
+            player.add(hair);
+
+            const bagGeo = new THREE.BoxGeometry(0.55, 0.7, 0.25);
+            const bagMat = new THREE.MeshStandardMaterial({ color: 0xff00ff, emissive: 0x440044, emissiveIntensity: 0.4 });
+            const bag = new THREE.Mesh(bagGeo, bagMat);
+            bag.position.set(0, 1.0, -0.32);
+            player.add(bag);
+
+            const strapGeo = new THREE.BoxGeometry(0.08, 0.7, 0.05);
+            const strapMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+            const strapL = new THREE.Mesh(strapGeo, strapMat);
+            strapL.position.set(-0.2, 1.0, -0.18);
+            player.add(strapL);
+            const strapR = new THREE.Mesh(strapGeo, strapMat);
+            strapR.position.set(0.2, 1.0, -0.18);
+            player.add(strapR);
+
+            const pocketGeo = new THREE.BoxGeometry(0.35, 0.25, 0.06);
+            const pocketMat = new THREE.MeshStandardMaterial({ color: 0xaa00aa });
+            const pocket = new THREE.Mesh(pocketGeo, pocketMat);
+            pocket.position.set(0, 0.85, -0.46);
+            player.add(pocket);
+
+            const shortsGeo = new THREE.BoxGeometry(0.55, 0.3, 0.42);
+            const shortsMat = new THREE.MeshStandardMaterial({ color: 0x222244 });
+            const shorts = new THREE.Mesh(shortsGeo, shortsMat);
+            shorts.position.y = 0.5;
+            player.add(shorts);
+
+            const legGeo = new THREE.BoxGeometry(0.22, 0.5, 0.22);
+            const legMat = new THREE.MeshStandardMaterial({ color: 0xffd1a4 });
+            const legL = new THREE.Mesh(legGeo, legMat);
+            legL.position.set(-0.15, 0.25, 0);
+            legL.name = 'legL';
+            player.add(legL);
+            const legR = new THREE.Mesh(legGeo, legMat);
+            legR.position.set(0.15, 0.25, 0);
+            legR.name = 'legR';
+            player.add(legR);
+
+            const shoeGeo = new THREE.BoxGeometry(0.26, 0.12, 0.32);
+            const shoeMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x222222 });
+            const shoeL = new THREE.Mesh(shoeGeo, shoeMat);
+            shoeL.position.set(-0.15, 0.06, 0.05);
+            shoeL.name = 'shoeL';
+            player.add(shoeL);
+            const shoeR = new THREE.Mesh(shoeGeo, shoeMat);
+            shoeR.position.set(0.15, 0.06, 0.05);
+            shoeR.name = 'shoeR';
+            player.add(shoeR);
+
+            const armGeo = new THREE.BoxGeometry(0.18, 0.55, 0.2);
+            const armMat = new THREE.MeshStandardMaterial({ color: 0xffd1a4 });
+            const armL = new THREE.Mesh(armGeo, armMat);
+            armL.position.set(-0.4, 0.95, 0);
+            armL.name = 'armL';
+            player.add(armL);
+            const armR = new THREE.Mesh(armGeo, armMat);
+            armR.position.set(0.4, 0.95, 0);
+            armR.name = 'armR';
+            player.add(armR);
+
+            player.position.set(0, 0, 2);
+            scene.add(player);
         }
 
         function createGuzar() {
             guzar = new THREE.Group();
-            const addBox = (w, h, d, color, x, y, z, name, emissive, ei) => {
-                const mat = new THREE.MeshStandardMaterial({ color, emissive: emissive || 0, emissiveIntensity: ei || 0 });
-                const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-                m.position.set(x, y, z); if (name) m.name = name; guzar.add(m); return m;
-            };
-            addBox(0.75, 0.9, 0.5, 0x2d5a2d, 0, 0.95, 0, null, 0x113311, 0.3);
-            addBox(0.78, 0.12, 0.52, 0x1a1a1a, 0, 0.6, 0);
-            addBox(0.15, 0.12, 0.05, 0xffd700, 0, 0.6, 0.27, null, 0x886600, 0.5);
-            addBox(0.2, 0.08, 0.5, 0xffd700, -0.28, 1.32, 0, null, 0x665500, 0.3);
-            addBox(0.2, 0.08, 0.5, 0xffd700, 0.28, 1.32, 0, null, 0x665500, 0.3);
-            addBox(0.15, 0.15, 0.05, 0xffd700, -0.18, 1.1, 0.27, null, 0x886600, 0.6);
-            addBox(0.42, 0.42, 0.42, 0xddb088, 0, 1.6, 0);
-            addBox(0.46, 0.18, 0.46, 0x1f4a1f, 0, 1.9, 0);
-            addBox(0.46, 0.05, 0.18, 0x111111, 0, 1.83, 0.3);
+
+            const bodyGeo = new THREE.BoxGeometry(0.75, 0.9, 0.5);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x2d5a2d, emissive: 0x113311, emissiveIntensity: 0.3 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.95;
+            guzar.add(body);
+
+            const beltGeo = new THREE.BoxGeometry(0.78, 0.12, 0.52);
+            const beltMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
+            const belt = new THREE.Mesh(beltGeo, beltMat);
+            belt.position.y = 0.6;
+            guzar.add(belt);
+
+            const buckleGeo = new THREE.BoxGeometry(0.15, 0.12, 0.05);
+            const buckleMat = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0x886600, emissiveIntensity: 0.5 });
+            const buckle = new THREE.Mesh(buckleGeo, buckleMat);
+            buckle.position.set(0, 0.6, 0.27);
+            guzar.add(buckle);
+
+            const epauletteGeo = new THREE.BoxGeometry(0.2, 0.08, 0.5);
+            const epauletteMat = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0x665500, emissiveIntensity: 0.3 });
+            const epL = new THREE.Mesh(epauletteGeo, epauletteMat);
+            epL.position.set(-0.28, 1.32, 0);
+            guzar.add(epL);
+            const epR = new THREE.Mesh(epauletteGeo, epauletteMat);
+            epR.position.set(0.28, 1.32, 0);
+            guzar.add(epR);
+
+            const badgeGeo = new THREE.BoxGeometry(0.15, 0.15, 0.05);
+            const badgeMat = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0x886600, emissiveIntensity: 0.6 });
+            const badge = new THREE.Mesh(badgeGeo, badgeMat);
+            badge.position.set(-0.18, 1.1, 0.27);
+            guzar.add(badge);
+
+            const headGeo = new THREE.BoxGeometry(0.42, 0.42, 0.42);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xddb088 });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 1.6;
+            guzar.add(head);
+
+            const capGeo = new THREE.BoxGeometry(0.46, 0.18, 0.46);
+            const capMat = new THREE.MeshStandardMaterial({ color: 0x1f4a1f, emissive: 0x0a1a0a });
+            const cap = new THREE.Mesh(capGeo, capMat);
+            cap.position.y = 1.9;
+            guzar.add(cap);
+
+            const visorGeo = new THREE.BoxGeometry(0.46, 0.05, 0.18);
+            const visorMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+            const visor = new THREE.Mesh(visorGeo, visorMat);
+            visor.position.set(0, 1.83, 0.3);
+            guzar.add(visor);
+
+            const capBadgeGeo = new THREE.BoxGeometry(0.12, 0.1, 0.04);
+            const capBadge = new THREE.Mesh(capBadgeGeo, badgeMat);
+            capBadge.position.set(0, 1.92, 0.24);
+            guzar.add(capBadge);
+
+            const eyeGeo = new THREE.BoxGeometry(0.1, 0.08, 0.05);
             const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-            const eL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.05), eyeMat); eL.position.set(-0.1, 1.65, 0.22); guzar.add(eL);
-            const eR = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.05), eyeMat); eR.position.set(0.1, 1.65, 0.22); guzar.add(eR);
-            addBox(0.28, 0.06, 0.06, 0x000000, 0, 1.5, 0.22);
-            addBox(0.27, 0.65, 0.27, 0x2d5a2d, -0.17, 0.32, 0, 'legL');
-            addBox(0.27, 0.65, 0.27, 0x2d5a2d, 0.17, 0.32, 0, 'legR');
-            addBox(0.3, 0.15, 0.35, 0x000000, -0.17, 0.07, 0.04, 'bootL');
-            addBox(0.3, 0.15, 0.35, 0x000000, 0.17, 0.07, 0.04, 'bootR');
-            addBox(0.22, 0.62, 0.22, 0x2d5a2d, -0.48, 1.0, 0, 'armL');
-            addBox(0.22, 0.62, 0.22, 0x2d5a2d, 0.48, 1.0, 0, 'armR');
-            const tag = createTextSprite('GUZAR', '#00ff88'); tag.position.y = 2.6; guzar.add(tag);
-            const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.3, 4), new THREE.MeshBasicMaterial({ color: 0x00ff88 }));
-            arrow.rotation.x = Math.PI; arrow.position.y = 2.25; arrow.name = 'arrow'; guzar.add(arrow);
-            guzar.position.set(0, 0, guzarDistance); scene.add(guzar);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeL.position.set(-0.1, 1.65, 0.22);
+            guzar.add(eyeL);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeR.position.set(0.1, 1.65, 0.22);
+            guzar.add(eyeR);
+
+            const mustGeo = new THREE.BoxGeometry(0.28, 0.06, 0.06);
+            const mustMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+            const must = new THREE.Mesh(mustGeo, mustMat);
+            must.position.set(0, 1.5, 0.22);
+            guzar.add(must);
+
+            const legGeo = new THREE.BoxGeometry(0.27, 0.65, 0.27);
+            const legMat = new THREE.MeshStandardMaterial({ color: 0x2d5a2d });
+            const legL = new THREE.Mesh(legGeo, legMat);
+            legL.position.set(-0.17, 0.32, 0);
+            legL.name = 'legL';
+            guzar.add(legL);
+            const legR = new THREE.Mesh(legGeo, legMat);
+            legR.position.set(0.17, 0.32, 0);
+            legR.name = 'legR';
+            guzar.add(legR);
+
+            const bootGeo = new THREE.BoxGeometry(0.3, 0.15, 0.35);
+            const bootMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+            const bootL = new THREE.Mesh(bootGeo, bootMat);
+            bootL.position.set(-0.17, 0.07, 0.04);
+            bootL.name = 'bootL';
+            guzar.add(bootL);
+            const bootR = new THREE.Mesh(bootGeo, bootMat);
+            bootR.position.set(0.17, 0.07, 0.04);
+            bootR.name = 'bootR';
+            guzar.add(bootR);
+
+            const armGeo = new THREE.BoxGeometry(0.22, 0.62, 0.22);
+            const armMat = new THREE.MeshStandardMaterial({ color: 0x2d5a2d });
+            const armL = new THREE.Mesh(armGeo, armMat);
+            armL.position.set(-0.48, 1.0, 0);
+            armL.name = 'armL';
+            guzar.add(armL);
+            const armR = new THREE.Group();
+            armR.name = 'armR';
+            const armRMesh = new THREE.Mesh(armGeo, armMat);
+            armR.add(armRMesh);
+            armR.position.set(0.48, 1.0, 0);
+            guzar.add(armR);
+
+            const batonGroup = new THREE.Group();
+            const handleGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.15, 8);
+            const handleMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
+            const handle = new THREE.Mesh(handleGeo, handleMat);
+            handle.position.y = -0.07;
+            batonGroup.add(handle);
+
+            const stickGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.7, 8);
+            const stickMat = new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0x110000, emissiveIntensity: 0.3 });
+            const stick = new THREE.Mesh(stickGeo, stickMat);
+            stick.position.y = -0.5;
+            batonGroup.add(stick);
+
+            const tipGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.08, 8);
+            const tipMat = new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xaaaa00, emissiveIntensity: 0.6 });
+            const tip = new THREE.Mesh(tipGeo, tipMat);
+            tip.position.y = -0.88;
+            batonGroup.add(tip);
+
+            batonGroup.position.set(0, -0.3, 0.2);
+            batonGroup.rotation.x = 0.3;
+            batonGroup.name = 'baton';
+            armR.add(batonGroup);
+
+            const tag = createTextSprite('GUZAR', '#00ff88');
+            tag.position.y = 2.6;
+            guzar.add(tag);
+
+            const arrowGeo = new THREE.ConeGeometry(0.15, 0.3, 4);
+            const arrowMat = new THREE.MeshBasicMaterial({ color: 0x00ff88 });
+            const arrow = new THREE.Mesh(arrowGeo, arrowMat);
+            arrow.rotation.x = Math.PI;
+            arrow.position.y = 2.25;
+            arrow.name = 'arrow';
+            guzar.add(arrow);
+
+            guzar.position.set(0, 0, guzarDistance);
+            scene.add(guzar);
         }
 
         function spawnBuilding(z) {
             [-1, 1].forEach(s => {
-                const h = 5 + Math.random() * 12, w = 2.5 + Math.random() * 2.5, d = 3 + Math.random() * 2;
+                const h = 5 + Math.random() * 12;
+                const w = 2.5 + Math.random() * 2.5;
+                const d = 3 + Math.random() * 2;
+                const geo = new THREE.BoxGeometry(w, h, d);
+
+                const baseColors = [0x1a1030, 0x150525, 0x201040, 0x100525, 0x251535];
+                const mat = new THREE.MeshStandardMaterial({ color: baseColors[Math.floor(Math.random() * baseColors.length)] });
+                const b = new THREE.Mesh(geo, mat);
                 const xPos = s * (7 + Math.random() * 4);
-                const bc = [0x1a1030, 0x150525, 0x201040, 0x100525, 0x251535];
-                const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: bc[Math.floor(Math.random() * bc.length)] }));
-                b.position.set(xPos, h / 2, z); scene.add(b); buildings.push(b);
-                const wc = [0xff00ff, 0x00f0ff, 0xffff00, 0xff0066, 0x00ff88];
-                for (let r = 0; r < Math.floor(h / 1.2); r++) {
-                    for (let c = 0; c < 3; c++) {
+                b.position.set(xPos, h / 2, z);
+                scene.add(b);
+                buildings.push(b);
+
+                const windowColors = [0xff00ff, 0x00f0ff, 0xffff00, 0xff0066, 0x00ff88];
+                const numFloors = Math.floor(h / 1.2);
+
+                for (let row = 0; row < numFloors; row++) {
+                    for (let col = 0; col < 3; col++) {
                         if (Math.random() < 0.6) {
-                            const win = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.6), new THREE.MeshBasicMaterial({ color: wc[Math.floor(Math.random() * wc.length)] }));
-                            win.position.set(xPos + (s > 0 ? -w / 2 - 0.01 : w / 2 + 0.01), 0.8 + r * 1.2, z - d / 2 + 0.5 + c * (d / 3));
-                            win.rotation.y = s > 0 ? -Math.PI / 2 : Math.PI / 2; scene.add(win); buildings.push(win);
+                            const winGeo = new THREE.PlaneGeometry(0.4, 0.6);
+                            const winColor = windowColors[Math.floor(Math.random() * windowColors.length)];
+                            const winMat = new THREE.MeshBasicMaterial({ color: winColor });
+                            const win = new THREE.Mesh(winGeo, winMat);
+
+                            const sideOffset = s > 0 ? -w / 2 - 0.01 : w / 2 + 0.01;
+                            win.position.set(xPos + sideOffset, 0.8 + row * 1.2, z - d / 2 + 0.5 + col * (d / 3));
+                            win.rotation.y = s > 0 ? -Math.PI / 2 : Math.PI / 2;
+                            scene.add(win);
+                            buildings.push(win);
                         }
                     }
+                }
+
+                if (Math.random() < 0.4) {
+                    const signGeo = new THREE.BoxGeometry(w * 0.7, 0.3, 0.1);
+                    const signColor = windowColors[Math.floor(Math.random() * windowColors.length)];
+                    const signMat = new THREE.MeshBasicMaterial({ color: signColor });
+                    const sign = new THREE.Mesh(signGeo, signMat);
+                    sign.position.set(xPos, h + 0.3, z);
+                    scene.add(sign);
+                    buildings.push(sign);
+                }
+
+                if (Math.random() < 0.3) {
+                    const antGeo = new THREE.BoxGeometry(0.1, 1.5, 0.1);
+                    const antMat = new THREE.MeshStandardMaterial({ color: 0x444444 });
+                    const ant = new THREE.Mesh(antGeo, antMat);
+                    ant.position.set(xPos, h + 0.75, z);
+                    scene.add(ant);
+                    buildings.push(ant);
+
+                    const blinkGeo = new THREE.SphereGeometry(0.1, 6, 6);
+                    const blinkMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+                    const blink = new THREE.Mesh(blinkGeo, blinkMat);
+                    blink.position.set(xPos, h + 1.55, z);
+                    scene.add(blink);
+                    buildings.push(blink);
                 }
             });
         }
 
         function spawnObstacle(z) {
-            const lane = Math.floor(Math.random() * 3) - 1, type = Math.random();
+            const lane = Math.floor(Math.random() * 3) - 1;
+            const type = Math.random();
+
             let obs;
             if (type < 0.4) {
                 obs = new THREE.Group();
-                const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1, 0.5), new THREE.MeshStandardMaterial({ color: 0x224422 }));
-                body.position.y = 1; obs.add(body);
-                const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.45), new THREE.MeshStandardMaterial({ color: 0xffd1a4 }));
-                head.position.y = 1.75; obs.add(head);
-                const cap = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.15, 0.5), new THREE.MeshStandardMaterial({ color: 0x111111 }));
-                cap.position.y = 2.05; obs.add(cap);
+                const body = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.7, 1, 0.5),
+                    new THREE.MeshStandardMaterial({ color: 0x224422, emissive: 0x002200, emissiveIntensity: 0.2 })
+                );
+                body.position.y = 1;
+                obs.add(body);
+
+                const head = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.45, 0.45, 0.45),
+                    new THREE.MeshStandardMaterial({ color: 0xffd1a4 })
+                );
+                head.position.y = 1.75;
+                obs.add(head);
+
+                const cap = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.5, 0.15, 0.5),
+                    new THREE.MeshStandardMaterial({ color: 0x111111 })
+                );
+                cap.position.y = 2.05;
+                obs.add(cap);
+
+                const baton = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.08, 0.5, 0.08),
+                    new THREE.MeshStandardMaterial({ color: 0x222222 })
+                );
+                baton.position.set(0.4, 1.0, 0.3);
+                obs.add(baton);
+
+                const eyeGeo = new THREE.BoxGeometry(0.08, 0.06, 0.04);
+                const eyeMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+                const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+                eyeL.position.set(-0.1, 1.78, 0.23);
+                obs.add(eyeL);
+                const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+                eyeR.position.set(0.1, 1.78, 0.23);
+                obs.add(eyeR);
+
                 obs.userData.type = 'guard';
+                obs.userData.height = 2.2;
             } else if (type < 0.75) {
                 obs = new THREE.Group();
-                const bm = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-                const bw = new THREE.MeshStandardMaterial({ color: 0xffffff });
-                const bg = new THREE.BoxGeometry(2, 0.25, 0.15);
-                const b1 = new THREE.Mesh(bg, bm); b1.position.y = 0.9; obs.add(b1);
-                const b2 = new THREE.Mesh(bg, bw); b2.position.y = 0.6; obs.add(b2);
-                const b3 = new THREE.Mesh(bg, bm); b3.position.y = 0.3; obs.add(b3);
+                const barGeo = new THREE.BoxGeometry(2, 0.25, 0.15);
+                const barMat = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0x440000, emissiveIntensity: 0.4 });
+                const bar1 = new THREE.Mesh(barGeo, barMat);
+                bar1.position.y = 0.9;
+                obs.add(bar1);
+
+                const bar2 = new THREE.Mesh(barGeo, new THREE.MeshStandardMaterial({ color: 0xffffff }));
+                bar2.position.y = 0.6;
+                obs.add(bar2);
+
+                const bar3 = new THREE.Mesh(barGeo, barMat);
+                bar3.position.y = 0.3;
+                obs.add(bar3);
+
+                const legGeo = new THREE.BoxGeometry(0.15, 1.0, 0.15);
+                const legMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+                const legL = new THREE.Mesh(legGeo, legMat);
+                legL.position.set(-0.9, 0.5, 0);
+                legL.rotation.z = 0.2;
+                obs.add(legL);
+                const legR = new THREE.Mesh(legGeo, legMat);
+                legR.position.set(0.9, 0.5, 0);
+                legR.rotation.z = -0.2;
+                obs.add(legR);
+
+                const warnGeo = new THREE.SphereGeometry(0.1, 8, 8);
+                const warnMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+                const warn = new THREE.Mesh(warnGeo, warnMat);
+                warn.position.y = 1.1;
+                obs.add(warn);
+
                 obs.userData.type = 'barricade';
+                obs.userData.height = 1.1;
             } else {
                 obs = new THREE.Group();
-                const box = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.5, 0.7), new THREE.MeshStandardMaterial({ color: 0x8b4513 }));
-                box.position.y = 0.25; obs.add(box);
+                const boxGeo = new THREE.BoxGeometry(1.4, 0.5, 0.7);
+                const boxMat = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+                const box = new THREE.Mesh(boxGeo, boxMat);
+                box.position.y = 0.25;
+                obs.add(box);
+
+                for (let i = 0; i < 5; i++) {
+                    const paperGeo = new THREE.BoxGeometry(0.5 + Math.random() * 0.3, 0.05, 0.4);
+                    const paperColors = [0xffffff, 0xffffaa, 0xfff0e0, 0xffeedd];
+                    const paperMat = new THREE.MeshStandardMaterial({ color: paperColors[Math.floor(Math.random() * paperColors.length)] });
+                    const paper = new THREE.Mesh(paperGeo, paperMat);
+                    paper.position.set((Math.random() - 0.5) * 0.4, 0.55 + i * 0.06, (Math.random() - 0.5) * 0.2);
+                    paper.rotation.y = (Math.random() - 0.5) * 0.4;
+                    obs.add(paper);
+                }
+
+                for (let i = 0; i < 3; i++) {
+                    const lpGeo = new THREE.BoxGeometry(0.4, 0.02, 0.3);
+                    const lp = new THREE.Mesh(lpGeo, new THREE.MeshStandardMaterial({ color: 0xffffff }));
+                    lp.position.set((Math.random() - 0.5) * 0.6, 0.9 + i * 0.03, (Math.random() - 0.5) * 0.3);
+                    lp.rotation.z = (Math.random() - 0.5) * 0.5;
+                    lp.rotation.y = Math.random() * Math.PI;
+                    obs.add(lp);
+                }
                 obs.userData.type = 'papers';
+                obs.userData.height = 1.0;
             }
-            obs.position.x = lanePositions[lane + 1]; obs.position.z = z;
-            scene.add(obs); obstacles.push(obs);
+
+            obs.position.x = lanePositions[lane + 1];
+            obs.position.z = z;
+            scene.add(obs);
+            obstacles.push(obs);
         }
 
         function spawnCard(z) {
             const lane = Math.floor(Math.random() * 3) - 1;
             const card = new THREE.Group();
-            const c = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.7, 0.05), new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffaa00, emissiveIntensity: 0.8 }));
+
+            const cardGeo = new THREE.BoxGeometry(0.5, 0.7, 0.05);
+            const cardMat = new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffaa00, emissiveIntensity: 0.8 });
+            const c = new THREE.Mesh(cardGeo, cardMat);
             card.add(c);
-            const photo = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.06), new THREE.MeshStandardMaterial({ color: 0x00f0ff }));
-            photo.position.y = 0.1; card.add(photo);
+
+            const photoGeo = new THREE.BoxGeometry(0.25, 0.25, 0.06);
+            const photoMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff });
+            const photo = new THREE.Mesh(photoGeo, photoMat);
+            photo.position.y = 0.1;
+            card.add(photo);
+
+            const stripGeo = new THREE.BoxGeometry(0.4, 0.1, 0.06);
+            const stripMat = new THREE.MeshStandardMaterial({ color: 0xff00ff, emissive: 0x880088 });
+            const strip = new THREE.Mesh(stripGeo, stripMat);
+            strip.position.y = -0.22;
+            card.add(strip);
+
             card.position.set(lanePositions[lane + 1], 1.2, z);
-            scene.add(card); cards.push(card);
+            scene.add(card);
+            cards.push(card);
         }
 
         function spawnMainGate(z) {
             const gate = new THREE.Group();
-            const bm = new THREE.MeshStandardMaterial({ color: 0x444466, metalness: 0.8, roughness: 0.3, emissive: 0xff00ff, emissiveIntensity: 0.3 });
-            const bar = new THREE.Mesh(new THREE.BoxGeometry(10, 1.5, 0.3), bm); bar.position.y = 1.5; gate.add(bar);
-            const pm = new THREE.MeshStandardMaterial({ color: 0x222244, emissive: 0x00f0ff, emissiveIntensity: 0.2 });
-            const pL = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), pm); pL.position.set(-5, 2, 0); gate.add(pL);
-            const pR = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), pm); pR.position.set(5, 2, 0); gate.add(pR);
-            const sign = new THREE.Mesh(new THREE.BoxGeometry(8, 0.8, 0.2), new THREE.MeshStandardMaterial({ color: 0xff00ff, emissive: 0xff00ff, emissiveIntensity: 0.8 }));
-            sign.position.y = 4.4; gate.add(sign);
-            const lm = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-            const l1 = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), lm); l1.position.set(-3, 4.4, 0.2); gate.add(l1);
-            const l2 = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), lm); l2.position.set(3, 4.4, 0.2); gate.add(l2);
+
+            const barGeo = new THREE.BoxGeometry(10, 1.5, 0.3);
+            const barMat = new THREE.MeshStandardMaterial({
+                color: 0x444466, metalness: 0.8, roughness: 0.3,
+                emissive: 0xff00ff, emissiveIntensity: 0.3
+            });
+            const bar = new THREE.Mesh(barGeo, barMat);
+            bar.position.y = 1.5;
+            gate.add(bar);
+
+            for (let i = -4; i <= 4; i += 1) {
+                const vGeo = new THREE.BoxGeometry(0.15, 1.5, 0.3);
+                const v = new THREE.Mesh(vGeo, barMat);
+                v.position.set(i, 1.5, 0);
+                gate.add(v);
+            }
+
+            const pillarGeo = new THREE.BoxGeometry(0.8, 4, 0.8);
+            const pillarMat = new THREE.MeshStandardMaterial({ color: 0x222244, emissive: 0x00f0ff, emissiveIntensity: 0.2 });
+            const pL = new THREE.Mesh(pillarGeo, pillarMat);
+            pL.position.set(-5, 2, 0);
+            gate.add(pL);
+            const pR = new THREE.Mesh(pillarGeo, pillarMat);
+            pR.position.set(5, 2, 0);
+            gate.add(pR);
+
+            const signGeo = new THREE.BoxGeometry(8, 0.8, 0.2);
+            const signMat = new THREE.MeshStandardMaterial({ color: 0xff00ff, emissive: 0xff00ff, emissiveIntensity: 0.8 });
+            const sign = new THREE.Mesh(signGeo, signMat);
+            sign.position.y = 4.4;
+            gate.add(sign);
+
+            const accentGeo = new THREE.BoxGeometry(8, 0.15, 0.22);
+            const accentMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+            const accent = new THREE.Mesh(accentGeo, accentMat);
+            accent.position.y = 4.0;
+            gate.add(accent);
+
+            const lightGeo = new THREE.SphereGeometry(0.2, 8, 8);
+            const lightMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const l1 = new THREE.Mesh(lightGeo, lightMat);
+            l1.position.set(-3, 4.4, 0.2);
+            gate.add(l1);
+            const l2 = new THREE.Mesh(lightGeo, lightMat);
+            l2.position.set(3, 4.4, 0.2);
+            gate.add(l2);
             gate.userData.lights = [l1, l2];
-            gate.position.z = z; gate.userData.passed = false;
-            scene.add(gate); mainGate = gate;
+
+            gate.position.z = z;
+            gate.userData.passed = false;
+            scene.add(gate);
+            mainGate = gate;
+
             document.getElementById('gateAlert').style.display = 'block';
         }
 
         function createConfetti() {
-            const cv = document.getElementById('confetti');
-            cv.width = window.innerWidth; cv.height = window.innerHeight;
-            const ctx = cv.getContext('2d');
-            const pieces = [], colors = ['#ff00ff', '#00f0ff', '#ffff00', '#ff0066', '#00ff88'];
-            for (let i = 0; i < 120; i++) pieces.push({ x: Math.random() * cv.width, y: Math.random() * cv.height - cv.height, vx: (Math.random() - .5) * 8, vy: Math.random() * 5 + 5, rotation: Math.random() * Math.PI * 2, vr: (Math.random() - .5) * .2, size: Math.random() * 5 + 4, color: colors[Math.floor(Math.random() * colors.length)], life: 1 });
-            function draw() {
-                ctx.clearRect(0, 0, cv.width, cv.height);
-                for (const p of pieces) { p.y += p.vy; p.x += p.vx; p.rotation += p.vr; p.vy += 0.1; p.life -= 0.008; ctx.save(); ctx.globalAlpha = p.life; ctx.translate(p.x, p.y); ctx.rotate(p.rotation); ctx.shadowBlur = 15; ctx.shadowColor = p.color; ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size); ctx.restore(); }
-                if (pieces.some(p => p.life > 0)) requestAnimationFrame(draw);
+            const canvas = document.getElementById('confetti');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+
+            const confettiPieces = [];
+            const colors = ['#ff00ff', '#00f0ff', '#ffff00', '#ff0066', '#00ff88'];
+
+            for (let i = 0; i < 120; i++) {
+                confettiPieces.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: Math.random() * 5 + 5,
+                    rotation: Math.random() * Math.PI * 2,
+                    vr: (Math.random() - 0.5) * 0.2,
+                    size: Math.random() * 5 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 1
+                });
             }
-            draw();
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let piece of confettiPieces) {
+                    piece.y += piece.vy;
+                    piece.x += piece.vx;
+                    piece.rotation += piece.vr;
+                    piece.vy += 0.1;
+                    piece.life -= 0.008;
+
+                    ctx.save();
+                    ctx.globalAlpha = piece.life;
+                    ctx.translate(piece.x, piece.y);
+                    ctx.rotate(piece.rotation);
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = piece.color;
+                    ctx.fillStyle = piece.color;
+                    ctx.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size);
+                    ctx.restore();
+                }
+
+                if (confettiPieces.some(p => p.life > 0)) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
         }
 
         function onKey(e) {
             if (!gameRunning) return;
-            if (e.code === 'ArrowLeft' || e.code === 'KeyA') { if (playerLane > -1) playerLane--; }
-            if (e.code === 'ArrowRight' || e.code === 'KeyD') { if (playerLane < 1) playerLane++; }
-            if (e.code === 'Space' && !isJumping) { playerVY = 0.35; isJumping = true; }
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+                if (playerLane > -1) playerLane--;
+            }
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+                if (playerLane < 1) playerLane++;
+            }
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+                if (!isJumping && !isSliding) {
+                    playNeonSound('jump');
+                    playerVY = JUMP_FORCE; // True Gravity implementation
+                    isJumping = true;
+                }
+            }
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+                if (!isJumping && !isSliding) {
+                    isSliding = true;
+                    slideTimer = 0.6;
+                } else if (isJumping) {
+                    playerVY = -JUMP_FORCE * 1.5; // Fast ground slam!
+                }
+            }
         }
-        function onResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
+
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        let spawnTimer = 0;
+        let buildingTimer = 0;
+        let runCycle = 0;
 
         function update() {
             if (!gameRunning) return;
-            clock.getDelta();
-            const dt = 0.016;
-            player.position.x += (lanePositions[playerLane + 1] - player.position.x) * 0.2;
-            if (isJumping) { playerY += playerVY; playerVY -= 0.018; if (playerY <= 0) { playerY = 0; playerVY = 0; isJumping = false; } }
-            player.position.y = playerY;
-            runCycle += dt * 15;
+
+            const dtRaw = clock.getDelta();
+            const dt = Math.min(dtRaw, 0.1); // Cap delta time to prevent physics explosion on lag
+            totalTime += dt;
+
+            // Base movement tied to time instead of frames
+            const moveStep = gameSpeed * dt * 60;
+
+            // --- SMOOTH PLAYER MOVEMENT ---
+            const targetX = lanePositions[playerLane + 1];
+            player.position.x += (targetX - player.position.x) * (1 - Math.exp(-15 * dt)); // Buttery exponential lerp
+
+            if (isJumping) {
+                playerVY -= GRAVITY * dt; // Gravity curve
+                playerY += playerVY * dt;
+                if (playerY <= 0) {
+                    playerY = 0;
+                    playerVY = 0;
+                    isJumping = false;
+                }
+            }
+
+            // Smooth Ducking scale/position logic
+            if (isSliding) {
+                slideTimer -= dt;
+                if (slideTimer <= 0) isSliding = false;
+            }
+            const targetScaleY = isSliding ? 0.4 : 1.0;
+            const targetPosY = isSliding && !isJumping ? -0.4 : (isJumping ? playerY : 0);
+
+            player.scale.y += (targetScaleY - player.scale.y) * (1 - Math.exp(-20 * dt));
             if (!isJumping) {
-                ['legL', 'legR', 'shoeL', 'shoeR'].forEach((n, i) => { player.getObjectByName(n).rotation.x = Math.sin(runCycle + (i % 2 ? Math.PI : 0)) * 0.6; });
+                player.position.y += (targetPosY - player.position.y) * (1 - Math.exp(-20 * dt));
+            } else {
+                player.position.y = playerY;
+            }
+
+            runCycle += dt * 15;
+            if (!isJumping && !isSliding) {
+                player.getObjectByName('legL').rotation.x = Math.sin(runCycle) * 0.6;
+                player.getObjectByName('legR').rotation.x = -Math.sin(runCycle) * 0.6;
+                player.getObjectByName('shoeL').rotation.x = Math.sin(runCycle) * 0.6;
+                player.getObjectByName('shoeR').rotation.x = -Math.sin(runCycle) * 0.6;
                 player.getObjectByName('armL').rotation.x = -Math.sin(runCycle) * 0.5;
                 player.getObjectByName('armR').rotation.x = Math.sin(runCycle) * 0.5;
+            } else if (isSliding) {
+                player.getObjectByName('armL').rotation.x = -Math.PI / 2;
+                player.getObjectByName('armR').rotation.x = -Math.PI / 2;
             }
-            guzarDistance += (7 - guzarDistance) * 0.02;
+
+            // --- SMOOTH CAMERA SYSTEM ---
+            const targetCamX = player.position.x * 0.3;
+            const targetCamY = 4 + (player.position.y * 0.2);
+
+            camera.position.x += (targetCamX - camera.position.x) * (1 - Math.exp(-10 * dt));
+            camera.position.y += (targetCamY - camera.position.y) * (1 - Math.exp(-10 * dt));
+
+            // Smooth Camera Tilt when changing lanes
+            const targetTilt = -playerLane * 0.05;
+            camera.rotation.z += (targetTilt - camera.rotation.z) * (1 - Math.exp(-10 * dt));
+
+            // --- GUZAR SMOOTH CHASING ---
+            guzarDistance += (targetGuzarDist - guzarDistance) * (1 - Math.exp(-2 * dt));
             guzar.position.z = player.position.z + guzarDistance;
-            guzar.position.x += (player.position.x - guzar.position.x) * 0.04;
-            ['legL', 'legR', 'bootL', 'bootR'].forEach((n, i) => { guzar.getObjectByName(n).rotation.x = Math.sin(runCycle * 1.1 + (i % 2 ? Math.PI : 0)) * 0.7; });
+
+            // Guzar smoothly follows player's lane X
+            guzar.position.x += (player.position.x - guzar.position.x) * (1 - Math.exp(-4 * dt));
+
+            // Animate Guzar
+            guzar.getObjectByName('legL').rotation.x = Math.sin(runCycle * 1.1) * 0.7;
+            guzar.getObjectByName('legR').rotation.x = -Math.sin(runCycle * 1.1) * 0.7;
+            guzar.getObjectByName('bootL').rotation.x = Math.sin(runCycle * 1.1) * 0.7;
+            guzar.getObjectByName('bootR').rotation.x = -Math.sin(runCycle * 1.1) * 0.7;
             guzar.getObjectByName('armL').rotation.x = -Math.sin(runCycle * 1.1) * 0.6;
             guzar.getObjectByName('armR').rotation.x = Math.sin(runCycle * 1.1) * 0.6;
+
             const arrow = guzar.getObjectByName('arrow');
-            if (arrow) arrow.position.y = 2.25 + Math.sin(Date.now() * .005) * .1;
+            if (arrow) arrow.position.y = 2.25 + Math.sin(totalTime * 5) * 0.1;
+
             document.getElementById('guzarWarning').style.display = 'block';
-            groundSegments.forEach(g => { g.position.z += gameSpeed; if (g.position.z > 30) g.position.z -= 120; });
-            buildings.forEach(b => b.position.z += gameSpeed);
-            buildings = buildings.filter(b => { if (b.position.z > 20) { scene.remove(b); return false; } return true; });
+
+            // --- WORLD UPDATES USING moveStep ---
+            groundSegments.forEach(g => {
+                g.position.z += moveStep;
+                if (g.position.z > 30) g.position.z -= 120;
+            });
+
+            buildings.forEach(b => {
+                b.position.z += moveStep;
+            });
+            buildings = buildings.filter(b => {
+                if (b.position.z > 20) {
+                    scene.remove(b);
+                    return false;
+                }
+                return true;
+            });
+
             buildingTimer += dt;
-            if (buildingTimer > 0.4) { buildingTimer = 0; spawnBuilding(-90); }
+            if (buildingTimer > 0.4 / (gameSpeed / 0.4)) { // Scale spawn rate with speed
+                buildingTimer = 0;
+                spawnBuilding(-90);
+            }
+
             if (!gateSpawned) {
                 spawnTimer += dt;
-                if (spawnTimer > 0.6) { spawnTimer = 0; if (Math.random() < 0.6) spawnObstacle(-60); if (Math.random() < 0.7) spawnCard(-60); }
+                if (spawnTimer > 0.6 / (gameSpeed / 0.4)) {
+                    spawnTimer = 0;
+                    if (Math.random() < 0.6) spawnObstacle(-60);
+                    if (Math.random() < 0.7) spawnCard(-60);
+                }
             }
-            obstacles.forEach(o => o.position.z += gameSpeed);
-            obstacles = obstacles.filter(o => { if (o.position.z > 10) { scene.remove(o); return false; } return true; });
-            cards.forEach(c => { c.position.z += gameSpeed; c.rotation.y += 0.1; c.position.y = 1.2 + Math.sin(Date.now() * .005 + c.position.z) * .15; });
-            cards = cards.filter(c => { if (c.position.z > 10) { scene.remove(c); return false; } return true; });
+
+            obstacles.forEach(o => o.position.z += moveStep);
+            obstacles = obstacles.filter(o => {
+                if (o.position.z > 10) {
+                    scene.remove(o);
+                    return false;
+                }
+                return true;
+            });
+
+            cards.forEach(c => {
+                c.position.z += moveStep;
+                c.rotation.y += 3 * dt;
+                c.position.y = 1.2 + Math.sin(totalTime * 3 + c.position.z) * 0.15;
+            });
+            cards = cards.filter(c => {
+                if (c.position.z > 10) {
+                    scene.remove(c);
+                    return false;
+                }
+                return true;
+            });
+
+            // Collisions
             cards.forEach((c, i) => {
-                if (Math.abs(c.position.x - player.position.x) < 0.8 && Math.abs(c.position.z - player.position.z) < 0.8) {
-                    scene.remove(c); cards.splice(i, 1); score += 37.5; updateHUD();
+                const dx = Math.abs(c.position.x - player.position.x);
+                const dz = Math.abs(c.position.z - player.position.z);
+                const dy = Math.abs(c.position.y - (player.position.y + 1));
+                if (dx < 0.8 && dz < 0.8 && dy < 1.2) {
+                    scene.remove(c);
+                    cards.splice(i, 1);
+                    score += 37.5;
+                    playNeonSound('collect'); // Ping Pong sound effect
+                    updateHUD();
                 }
             });
+
             obstacles.forEach(o => {
-                if (Math.abs(o.position.x - player.position.x) < 0.7 && Math.abs(o.position.z - player.position.z) < 0.7) {
+                const dx = Math.abs(o.position.x - player.position.x);
+                const dz = Math.abs(o.position.z - player.position.z);
+                if (dx < 0.7 && dz < 0.7) {
                     if (o.userData.type === 'barricade' && playerY > 1.2) return;
                     if (o.userData.type === 'papers' && playerY > 1.1) return;
                     if (o.userData.type === 'guard' && playerY > 1.8) return;
-                    const msgs = { guard: 'a Security Guard!', barricade: 'a Barricade!', papers: 'a Pile of Papers!' };
-                    endGame(false, 'You crashed into ' + msgs[o.userData.type]);
+
+                    // Allow sliding under barricades (if Y is low enough)
+                    if (o.userData.type === 'barricade' && isSliding) return;
+
+                    let crashMsg = 'You crashed into ';
+                    if (o.userData.type === 'guard') crashMsg += 'a Security Guard!';
+                    else if (o.userData.type === 'barricade') crashMsg += 'a Barricade!';
+                    else crashMsg += 'a Pile of Papers!';
+
+                    playNeonSound('crash'); // Obstacle crash sound
+                    endGame(false, crashMsg);
                 }
             });
+
             if (score >= TARGET_SCORE && !gateSpawned) {
                 gateSpawned = true;
-                obstacles.forEach(o => scene.remove(o)); cards.forEach(c => scene.remove(c));
-                obstacles = []; cards = []; spawnMainGate(-50);
+                obstacles.forEach(o => scene.remove(o));
+                cards.forEach(c => scene.remove(c));
+                obstacles = [];
+                cards = [];
+                spawnMainGate(-50);
             }
+
             if (mainGate) {
-                mainGate.position.z += gameSpeed;
-                const t = Date.now() / 200;
-                mainGate.userData.lights.forEach(l => l.material.color.setHex(Math.sin(t) > 0 ? 0xff0000 : 0x440000));
+                mainGate.position.z += moveStep;
+
+                const t = totalTime * 5;
+                mainGate.userData.lights.forEach(l => {
+                    l.material.color.setHex(Math.sin(t) > 0 ? 0xff0000 : 0x440000);
+                });
+
                 if (!mainGate.userData.passed && mainGate.position.z > 1 && mainGate.position.z < 4) {
                     mainGate.userData.passed = true;
-                    endGame(playerY > 1.6, 'GATEPASS ' + (playerY > 1.6 ? 'APPROVED!' : 'BLOCKED!'));
+                    if (playerY > 1.6) {
+                        endGame(true, 'GATEPASS APPROVED!', false);
+                    } else {
+                        endGame(false, 'GATEPASS BLOCKED!', false);
+                    }
                 }
             }
         }
 
         function updateHUD() {
             document.getElementById('score').textContent = Math.floor(score);
-            document.getElementById('progressBar').style.width = Math.min(100, (score / TARGET_SCORE) * 100) + '%';
+            const pct = Math.min(100, (score / TARGET_SCORE) * 100);
+            document.getElementById('progressBar').style.width = pct + '%';
         }
 
         function endGame(success, msg) {
             if (gameEnded) return;
-            gameEnded = true; gameRunning = false;
+            gameEnded = true;
+            gameRunning = false;
             document.getElementById('gateAlert').style.display = 'none';
             document.getElementById('guzarWarning').style.display = 'none';
+
+            // Save Score locally 
+            saveScore(playerData.name, score, totalTime);
+
+            function goToPortal() {
+                if (window.parent !== window) {
+                    window.parent.postMessage('goHome', '*');
+                } else {
+                    window.location.href = 'portal.html';
+                }
+            }
+
             const cert = document.getElementById('certificate');
             if (success) {
+                playNeonSound('celebrate');
                 createConfetti();
                 cert.className = 'certificate approved';
                 cert.innerHTML = `
       <h1>✅ APPROVED</h1>
-      <p>CADET <span style="color:#ffff00">${playerData.name.toUpperCase()}</span></p>
-      <p style="font-size:30px;margin:20px 0;color:#ffff00;text-shadow:0 0 15px #ffff00;">🍔 GUZAR KA HALWA 🍔</p>
+      <p style="font-size:24px;">CADET <span style="color:#ffff00">${playerData.name.toUpperCase()}</span></p>
+      <p style="font-size:30px; margin: 20px 0; color: #ffff00; text-shadow: 0 0 15px #ffff00;">🍔 GUZAR KA HALWA 🍔</p>
+      <p style="font-size:22px;">🎓 CELEBRATION TIME 🎓</p>
+      <hr style="margin:20px 0; opacity:0.5; border-color: currentColor;">
+      <p>You made it through the gate!</p>
       <p>${msg}</p>
-      <p style="font-size:28px;margin-top:20px;">FINAL SCORE: ${Math.floor(score)}</p>
-      <div class="cert-btn-row">
+      <p style="margin-top:15px;">Time for halwa and celebration!</p>
+      <p style="font-size:28px; margin-top:20px;">FINAL SCORE: ${Math.floor(score)}</p>
+      <div style="display:flex; gap:10px; justify-content:center;">
         <button onclick="location.reload()">RUN AGAIN</button>
-        <button onclick="goToPortal()">◀ BACK TO PORTAL</button>
-      </div>`;
+        <button onclick="goToPortal()" style="background:#00f0ff; color:#000;">BACK TO MENU</button>
+      </div>
+      <p style="font-size:12px; margin-top:10px; opacity:0.6;">Redirecting to portal in 5s...</p>
+    `;
+                setTimeout(goToPortal, 5000);
             } else {
+                playNeonSound('lose');
                 cert.className = 'certificate rejected';
                 cert.innerHTML = `
       <h1>❌ BLOCKED</h1>
-      <p>CADET <span style="color:#ff0066">${playerData.name.toUpperCase()}</span></p>
-      <p style="font-size:30px;margin:20px 0;color:#ff0066;text-shadow:0 0 15px #ff0066;">ABB LAGEGI DC</p>
+      <p style="font-size:24px;">CADET <span style="color:#ff0066">${playerData.name.toUpperCase()}</span></p>
+      <p style="font-size:30px; margin: 20px 0; color: #ff0066; text-shadow: 0 0 15px #ff0066;">ABB LAGEGI DC</p>
+      <p style="font-size:22px;">🚫 ENTRY DENIED 🚫</p>
+      <hr style="margin:20px 0; opacity:0.5; border-color: currentColor;">
       <p>${msg}</p>
-      <p style="font-size:28px;margin-top:20px;">SCORE: ${Math.floor(score)} / ${TARGET_SCORE}</p>
-      <div class="cert-btn-row">
-        <button onclick="location.reload()">TRY AGAIN</button>
-        <button onclick="goToPortal()">◀ BACK TO PORTAL</button>
-      </div>`;
+      <p style="margin-top:15px;">Return to the dorm, student.</p>
+      <p style="font-size:28px; margin-top:20px;">SCORE: ${Math.floor(score)} / ${TARGET_SCORE}</p>
+      <button onclick="location.reload()">TRY AGAIN</button>
+    `;
             }
             document.getElementById('endScreen').style.display = 'flex';
-        }
-
-        function goToPortal() {
-            // If running inside iframe in portal.html, post message; otherwise redirect
-            if (window.parent !== window) {
-                window.parent.postMessage('goToGatepass', '*');
-            } else {
-                window.location.href = 'portal.html';
-            }
         }
 
         function animate() {
@@ -1179,10 +2355,15 @@
         }
 
         function startGame() {
+            playNeonSound('click');
             document.getElementById('title').style.display = 'none';
             document.getElementById('hud').style.display = 'block';
             document.getElementById('instructions').style.display = 'block';
-            init(); gameRunning = true; animate();
+            init();
+            gameRunning = true;
+            clock.start();
+            totalTime = 0;
+            animate();
         }
     </script>
 </body>

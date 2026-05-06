@@ -53,13 +53,13 @@
 
         .main-title {
             font-family: 'Press Start 2P', cursive;
-            font-size: 50px;
+            font-size: 42px;
             line-height: 1.2;
             background: linear-gradient(90deg, #ff00d4, #00f0ff);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .hero p {
@@ -142,40 +142,48 @@
         /* ── Dashboard (Normal Mode) ── */
         .dashboard {
             width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
             height: 100%;
             display: flex;
-            gap: 25px;
+            gap: 30px;
             padding: 30px;
             overflow: hidden;
+            align-items: flex-start;
         }
 
         .left-panel {
-            flex: 2;
+            flex: 1.6;
+            height: 100%;
             overflow-y: auto;
-            padding-right: 10px;
+            padding-right: 15px;
+            scroll-behavior: smooth;
         }
 
         .right-panel {
-            width: 350px;
+            flex: 0 0 320px;
             display: flex;
             flex-direction: column;
             gap: 20px;
+            height: 100%;
+            overflow-y: auto;
         }
 
         .cyber-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .logo {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 900;
             background: linear-gradient(90deg, #ff0066, #00f0ff);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
         }
 
         .profile {
@@ -236,7 +244,7 @@
         }
 
         .status-card p {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             color: #00f0ff;
         }
@@ -244,9 +252,9 @@
         .form-card {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 35px;
+            padding: 25px;
             border-radius: 25px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             box-shadow: 0 0 20px rgba(255, 0, 212, 0.15);
         }
 
@@ -294,13 +302,13 @@
         .input-group input,
         .input-group textarea {
             width: 100%;
-            padding: 16px;
+            padding: 12px 16px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 15px;
+            border-radius: 12px;
             outline: none;
             color: white;
-            font-size: 16px;
+            font-size: 15px;
             font-family: 'Orbitron', sans-serif;
         }
 
@@ -352,20 +360,32 @@
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
+            gap: 5px;
             text-align: center;
         }
 
         .calendar div {
-            padding: 10px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.04);
-            font-size: 14px;
+            padding: 8px 2px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            font-size: 13px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 1;
+        }
+
+        .calendar div.label {
+            background: transparent;
+            font-weight: bold;
+            opacity: 0.6;
+            font-size: 11px;
         }
 
         .highlight {
             background: linear-gradient(135deg, #ff00d4, #00f0ff) !important;
             font-weight: 900;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
         }
 
         .notice {
@@ -583,8 +603,12 @@
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const label = document.getElementById('monthLabel');
-            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const today = now.getDate();
+            const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+            const todayDate = new Date();
+            const today = todayDate.getDate();
+            const currMonth = todayDate.getMonth();
+            const currYear = todayDate.getFullYear();
+
             const month = now.getMonth();
             const year = now.getFullYear();
 
@@ -592,14 +616,14 @@
             label.textContent = `${monthNames[month]} ${year}`;
 
             grid.innerHTML = '';
-            days.forEach(d => grid.innerHTML += `<div style="font-weight:bold;opacity:0.6">${d}</div>`);
+            days.forEach(d => grid.innerHTML += `<div class="label">${d}</div>`);
 
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
 
             for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div></div>';
             for (let d = 1; d <= daysInMonth; d++) {
-                const isToday = d === today;
+                const isToday = (d === today && month === currMonth && year === currYear);
                 grid.innerHTML += `<div class="${isToday ? 'highlight' : ''}">${d}</div>`;
             }
         }
@@ -683,10 +707,13 @@
 
             msg.style.color = '#00ff88';
             msg.style.textShadow = '0 0 10px #00ff88';
-            msg.textContent = '✓ Gatepass request submitted successfully!';
+            msg.textContent = '✓ Gatepass request submitted successfully! Redirecting...';
 
-            // Clear after 3s
-            setTimeout(() => { msg.textContent = ''; }, 3000);
+            // Clear after 3s and go home
+            setTimeout(() => {
+                msg.textContent = '';
+                goHome();
+            }, 2000);
         }
     </script>
 
