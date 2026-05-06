@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GatePass Protocol — Login</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&family=VT323&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: #0d0b1a;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      color: white;
+    }
+
+    /* ── Card ── */
+    .login-card {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 460px;
+      padding: 48px 44px;
+      background: rgba(12, 8, 35, 0.6);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      border-radius: 24px;
+      box-shadow:
+        0 0 50px rgba(0, 240, 255, 0.3),
+        0 0 90px rgba(255, 0, 212, 0.18),
+        inset 0 0 30px rgba(0, 240, 255, 0.04);
+      animation: cardIn .7s ease-out;
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(28px) scale(.96);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .badge {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: #ffe600;
+      margin-bottom: 18px;
+      text-shadow: 0 0 12px #ffe600;
+    }
+
+    .card-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 22px;
+      line-height: 1.4;
+      background: linear-gradient(90deg, #ff00d4, #00f0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 0 12px rgba(255, 0, 212, 0.5));
+    }
+
+    .card-sub {
+      font-family: 'VT323', monospace;
+      font-size: 19px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 1px;
+      margin-bottom: 36px;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+      opacity: 0.5;
+      margin-bottom: 32px;
+    }
+
+    /* ── Form ── */
+    .input-group {
+      margin-bottom: 22px;
+    }
+
+    .input-label {
+      display: block;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: #ff00d4;
+      margin-bottom: 10px;
+      text-shadow: 0 0 8px rgba(255, 0, 212, 0.6);
+    }
+
+    .cyber-input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(0, 0, 20, 0.55);
+      border: 1px solid rgba(0, 240, 255, 0.28);
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: all .3s ease;
+      letter-spacing: 0.5px;
+    }
+
+    .cyber-input::placeholder {
+      color: rgba(255, 255, 255, 0.28);
+    }
+
+    .cyber-input:focus {
+      border-color: #00f0ff;
+      box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.18), 0 0 22px rgba(0, 240, 255, 0.45);
+      background: rgba(0, 18, 38, 0.7);
+    }
+
+    .hint {
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      color: rgba(0, 240, 255, 0.6);
+      margin-top: 7px;
+      letter-spacing: 0.5px;
+    }
+
+    .pw-hint-live {
+      font-family: 'VT323', monospace;
+      font-size: 17px;
+      margin-top: 7px;
+      color: #00ff88;
+      text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+      min-height: 22px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Password eye toggle */
+    .pw-wrap {
+      position: relative;
+    }
+
+    .pw-wrap .cyber-input {
+      padding-right: 48px;
+    }
+
+    .eye-btn {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      opacity: 0.55;
+      transition: opacity .2s;
+    }
+
+    .eye-btn:hover {
+      opacity: 1;
+    }
+
+    /* Login button */
+    .login-btn {
+      width: 100%;
+      margin-top: 28px;
+      padding: 17px;
+      background: linear-gradient(90deg, #ff00d4 0%, #aa00ff 50%, #00f0ff 100%);
+      background-size: 200% 100%;
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 13px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 30px rgba(255, 0, 212, 0.55), 0 0 60px rgba(0, 240, 255, 0.35);
+      transition: all .3s ease;
+    }
+
+    .login-btn:hover {
+      background-position: 100% 0;
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 0 50px rgba(255, 0, 212, 0.85), 0 0 90px rgba(0, 240, 255, 0.6);
+    }
+
+    .login-btn:active {
+      transform: translateY(-1px);
+    }
+
+    .login-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Error */
+    .error-msg {
+      font-family: 'VT323', monospace;
+      font-size: 18px;
+      color: #ff0066;
+      text-shadow: 0 0 10px #ff0066;
+      text-align: center;
+      min-height: 26px;
+      margin-top: 14px;
+    }
+
+    /* Domain tag */
+    .domain-tag {
+      display: inline-block;
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      padding: 4px 10px;
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      border-radius: 6px;
+      color: #00f0ff;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-card">
+    <div class="badge">NIIT UNIVERSITY // SECURITY SYSTEM v4.20</div>
+    <div class="card-title">GATEPASS<br>PROTOCOL</div>
+    <div class="card-sub">&gt; Student Portal Access _</div>
+    <div class="divider"></div>
+
+    <div class="input-group">
+      <label class="input-label">▸ STUDENT EMAIL</label>
+      <input type="email" id="emailInput" class="cyber-input" placeholder="yourname@st.niituniversity.in"
+        autocomplete="username">
+      <div class="hint">Only @st.niituniversity.in accounts are allowed</div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">▸ PASSWORD</label>
+      <div class="pw-wrap">
+        <input type="password" id="pwInput" class="cyber-input" placeholder="••••••••" autocomplete="current-password">
+        <button class="eye-btn" id="eyeBtn" type="button" title="Show/hide password">👁</button>
+      </div>
+      <div class="hint">Your password = everything before @ in your email</div>
+      <div class="pw-hint-live" id="pwHint"></div>
+    </div>
+
+    <button class="login-btn" id="loginBtn">▶ ACCESS PORTAL</button>
+    <div class="error-msg" id="errMsg"></div>
+  </div>
+
+  <script>
+    const DOMAIN = '@st.niituniversity.in';
+
+    const emailInput = document.getElementById('emailInput');
+    const pwInput = document.getElementById('pwInput');
+    const loginBtn = document.getElementById('loginBtn');
+    const errMsg = document.getElementById('errMsg');
+    const eyeBtn = document.getElementById('eyeBtn');
+
+    /* Toggle password visibility */
+    eyeBtn.addEventListener('click', () => {
+      if (pwInput.type === 'password') {
+        pwInput.type = 'text';
+        eyeBtn.textContent = '🙈';
+      } else {
+        pwInput.type = 'password';
+        eyeBtn.textContent = '👁';
+      }
+    });
+
+    /* Live password hint — shows expected password as user types email */
+    const pwHint = document.getElementById('pwHint');
+    emailInput.addEventListener('input', () => {
+      const val = emailInput.value.trim().toLowerCase();
+      if (val.endsWith(DOMAIN)) {
+        const user = val.slice(0, val.indexOf(DOMAIN));
+        pwHint.textContent = user ? `▸ Your password: ${user}` : '';
+      } else {
+        pwHint.textContent = '';
+      }
+    });
+
+    /* Allow Enter key */
+    [emailInput, pwInput].forEach(el =>
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') attemptLogin(); })
+    );
+
+    loginBtn.addEventListener('click', attemptLogin);
+
+    function attemptLogin() {
+      const email = emailInput.value.trim().toLowerCase();
+      const pw = pwInput.value.trim().toLowerCase(); // case-insensitive
+
+      errMsg.textContent = '';
+
+      /* Validate domain */
+      if (!email.endsWith(DOMAIN)) {
+        shake(emailInput);
+        errMsg.textContent = '⚠ Only @st.niituniversity.in accounts are allowed';
+        return;
+      }
+
+      /* Extract username = everything before @ */
+      const username = email.slice(0, email.indexOf(DOMAIN));
+
+      if (!username) {
+        shake(emailInput);
+        errMsg.textContent = '⚠ Invalid email format';
+        return;
+      }
+
+      /* Validate password — compare both lowercased */
+      if (pw !== username) {
+        shake(pwInput);
+        errMsg.textContent = '⚠ Incorrect password';
+        return;
+      }
+
+      /* Success — store user info and redirect */
+      const displayName = username
+        .split(/[._]/)
+        .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+        .join(' ');
+
+      sessionStorage.setItem('gp_user', JSON.stringify({ email, username, displayName }));
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'ACCESSING...';
+      errMsg.style.color = '#00ff88';
+      errMsg.style.textShadow = '0 0 10px #00ff88';
+      errMsg.textContent = '✓ Identity verified. Loading portal...';
+
+      setTimeout(() => {
+        window.location.href = 'portal.html';
+      }, 900);
+    }
+
+    /* Shake animation helper */
+    function shake(el) {
+      el.style.animation = 'none';
+      el.style.borderColor = '#ff0066';
+      el.style.boxShadow = '0 0 0 2px rgba(255,0,102,0.3), 0 0 20px rgba(255,0,102,0.5)';
+      setTimeout(() => {
+        el.style.borderColor = '';
+        el.style.boxShadow = '';
+      }, 1000);
+    }
+  </script>
+</body>
+
+</html>

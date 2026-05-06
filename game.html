@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>University Gatepass Runner - CYBER EDITION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'VT323', monospace;
+            background: #0d0b1a;
+        }
+
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+
+
+
+
+        /* ── FORM SCREEN ── */
+        #formScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 200;
+            background: #0d0b1a;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Back to center, but with margin on card */
+            padding: 20px;
+        }
+
+
+
+
+
+        .form-card {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            padding: 30px 40px;
+            background: rgba(15, 10, 40, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.3), 0 0 80px rgba(255, 0, 255, 0.1);
+            z-index: 2;
+            margin: 20px 0;
+            /* Space for scrolling */
+            animation: cardAppear 0.8s ease-out;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .form-label-tag {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px;
+            color: #00f0ff;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .form-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 26px;
+            background: linear-gradient(90deg, #ff00ff, #00f0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+            filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.5));
+        }
+
+        .form-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+            margin: 25px 0;
+            opacity: 0.6;
+        }
+
+        .input-group {
+            margin-bottom: 22px;
+        }
+
+        .input-label {
+            display: block;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: #ff00ff;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 8px rgba(255, 0, 255, 0.6);
+        }
+
+        .cyber-input,
+        .cyber-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0, 0, 20, 0.6);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            outline: none;
+            transition: all .3s;
+            letter-spacing: 1px;
+        }
+
+        .cyber-input:focus,
+        .cyber-textarea:focus {
+            border-color: #00f0ff;
+            box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.2), 0 0 20px rgba(0, 240, 255, 0.5), inset 0 0 10px rgba(0, 240, 255, 0.1);
+        }
+
+        .cyber-input::placeholder,
+        .cyber-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .cyber-textarea {
+            resize: none;
+            min-height: 90px;
+            line-height: 1.4;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-family: 'VT323', monospace;
+            font-size: 16px;
+            color: #00f0ff;
+            margin-top: 5px;
+            opacity: 0.7;
+        }
+
+        .urgency-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .urgency-btn {
+            flex: 1;
+            padding: 14px 8px;
+            background: rgba(0, 0, 20, 0.5);
+            border: 2px solid;
+            border-radius: 8px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all .25s;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .urgency-btn.casual {
+            border-color: #00ff88;
+            color: #00ff88;
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+        }
+
+        .urgency-btn.urgent {
+            border-color: #ffff00;
+            color: #ffff00;
+            box-shadow: 0 0 12px rgba(255, 255, 0, 0.3);
+        }
+
+        .urgency-btn.life {
+            border-color: #ff0066;
+            color: #ff0066;
+            box-shadow: 0 0 12px rgba(255, 0, 102, 0.3);
+        }
+
+        .urgency-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .urgency-btn.casual.active {
+            background: rgba(0, 255, 136, 0.25);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.9);
+        }
+
+        .urgency-btn.urgent.active {
+            background: rgba(255, 255, 0, 0.25);
+            box-shadow: 0 0 30px rgba(255, 255, 0, 0.9);
+        }
+
+        .urgency-btn.life.active {
+            background: rgba(255, 0, 102, 0.25);
+            box-shadow: 0 0 30px rgba(255, 0, 102, 0.9);
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 30px;
+            padding: 18px;
+            background: linear-gradient(90deg, #ff00ff, #aa00ff, #00f0ff);
+            background-size: 200% 100%;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.6), 0 0 60px rgba(0, 240, 255, 0.4);
+            transition: all .3s;
+        }
+
+        .submit-btn:hover {
+            background-position: 100% 0;
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .form-error {
+            color: #ff0066;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            text-align: center;
+            margin-top: 15px;
+            text-shadow: 0 0 10px #ff0066;
+            min-height: 24px;
+        }
+
+        /* ── LOADING SCREEN ── */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 250;
+            background: rgba(5, 5, 16, 0.97);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .ld-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 18px;
+            color: #00f0ff;
+            text-shadow: 0 0 20px #00f0ff;
+            letter-spacing: 3px;
+            animation: ldPulse 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes ldPulse {
+            from {
+                opacity: 0.6;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .ld-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0, 240, 255, 0.15);
+            border-top: 4px solid #00f0ff;
+            border-right: 4px solid #ff00ff;
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .ld-bar {
+            width: 300px;
+            height: 6px;
+            background: rgba(0, 0, 20, 0.8);
+            border: 1px solid #ff00ff;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .ld-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff00ff, #00f0ff);
+            animation: ldFill 1.2s ease-out forwards;
+        }
+
+        @keyframes ldFill {
+            to {
+                width: 100%;
+            }
+        }
+
+        /* ── HUD ── */
+        #hud {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 18px;
+            z-index: 10;
+            font-family: 'Press Start 2P', monospace;
+            color: #00f0ff;
+            text-shadow: 0 0 10px #00f0ff, 2px 2px 0 #ff00ff;
+        }
+
+        #score {
+            color: #ffff00;
+            font-size: 24px;
+            text-shadow: 0 0 15px #ffff00, 2px 2px 0 #ff00ff;
+        }
+
+        #progress {
+            width: 320px;
+            height: 22px;
+            background: rgba(10, 10, 30, 0.8);
+            border: 2px solid #ff00ff;
+            margin-top: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
+        }
+
+        #progressBar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff00ff, #00f0ff);
+            transition: width .3s;
+        }
+
+        #instructions {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00f0ff;
+            text-align: center;
+            z-index: 10;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            text-shadow: 0 0 8px #00f0ff;
+            background: rgba(10, 10, 30, 0.8);
+            padding: 12px 24px;
+            border: 2px solid #ff00ff;
+        }
+
+        #gateAlert {
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff00ff;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 36px;
+            text-shadow: 0 0 20px #ff00ff;
+            z-index: 10;
+            display: none;
+            animation: glitch .3s infinite alternate;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translateX(-50%) translate(0);
+            }
+
+            20% {
+                transform: translateX(-50%) translate(-2px, 2px);
+            }
+
+            60% {
+                transform: translateX(-50%) translate(2px, 2px);
+            }
+
+            100% {
+                transform: translateX(-50%) translate(0);
+            }
+        }
+
+        #guzarWarning {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: #00ff88;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            z-index: 10;
+            text-shadow: 0 0 15px #00ff88;
+            animation: blink .5s infinite alternate;
+        }
+
+        @keyframes blink {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0.6;
+            }
+        }
+
+        /* ── TITLE ── */
+        #title {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #050510;
+            overflow: hidden;
+        }
+
+        #title .grid-bg {
+            position: absolute;
+            inset: 0;
+            background: #0d0b1a;
+        }
+
+        #title h1 {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 56px;
+            text-align: center;
+            background: linear-gradient(180deg, #ff66ff, #ff00ff, #aa00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            line-height: 1.3;
+            position: relative;
+            z-index: 2;
+            animation: titleGlitch 4s infinite;
+            filter: drop-shadow(0 0 20px #ff00ff);
+        }
+
+        @keyframes titleGlitch {
+
+            0%,
+            90%,
+            100% {
+                transform: translate(0);
+            }
+
+            92% {
+                transform: translate(-3px, 1px);
+            }
+
+            94% {
+                transform: translate(3px, -1px);
+            }
+
+            96% {
+                transform: translate(-2px, -1px);
+            }
+
+            98% {
+                transform: translate(2px, 2px);
+            }
+        }
+
+        #title .subtitle {
+            font-family: 'VT323', monospace;
+            font-size: 26px;
+            color: #00f0ff;
+            text-shadow: 0 0 15px #00f0ff;
+            margin-bottom: 40px;
+            letter-spacing: 3px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .card-row {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 50px;
+            z-index: 2;
+            position: relative;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .info-card {
+            width: 180px;
+            padding: 20px 15px;
+            background: rgba(10, 10, 30, 0.7);
+            border: 2px solid;
+            text-align: center;
+            font-family: 'VT323', monospace;
+        }
+
+        .info-card.pink {
+            border-color: #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+
+        .info-card.yellow {
+            border-color: #ffff00;
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+        }
+
+        .info-card.blue {
+            border-color: #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+
+        .info-card .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .info-card.pink .icon {
+            color: #ff00ff;
+        }
+
+        .info-card.yellow .icon {
+            color: #ffff00;
+        }
+
+        .info-card.blue .icon {
+            color: #00f0ff;
+        }
+
+        .info-card .label {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .info-card .desc {
+            font-size: 18px;
+            color: #ccc;
+        }
+
+        .player-info {
+            color: #00f0ff;
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            margin-bottom: 20px;
+            z-index: 2;
+            position: relative;
+            text-align: center;
+        }
+
+        .player-info span {
+            color: #ffff00;
+        }
+
+        #startBtn {
+            position: relative;
+            padding: 22px 80px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 24px;
+            color: #fff;
+            background: linear-gradient(90deg, #00f0ff, #ff00ff);
+            border: none;
+            cursor: pointer;
+            letter-spacing: 4px;
+            box-shadow: 0 0 30px #00f0ff, 0 0 60px #ff00ff, inset 0 0 20px rgba(255, 255, 255, 0.2);
+            z-index: 2;
+            transition: transform .2s;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+        }
+
+        #startBtn:hover {
+            transform: scale(1.08);
+        }
+
+        /* ── END SCREEN ── */
+        #endScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            flex-direction: column;
+            background: rgba(13, 11, 26, 0.95);
+        }
+
+        .certificate {
+            padding: 40px 60px;
+            text-align: center;
+            animation: appear .5s ease-out;
+            font-family: 'VT323', monospace;
+            max-width: 600px;
+            border: 3px solid;
+            position: relative;
+        }
+
+        @keyframes appear {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .approved {
+            background: linear-gradient(135deg, rgba(0, 40, 20, 0.95), rgba(0, 80, 40, 0.95));
+            color: #00ff88;
+            border-color: #00ff88;
+            box-shadow: 0 0 60px #00ff88, inset 0 0 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .rejected {
+            background: linear-gradient(135deg, rgba(40, 0, 20, 0.95), rgba(80, 0, 40, 0.95));
+            color: #ff0066;
+            border-color: #ff0066;
+            box-shadow: 0 0 60px #ff0066, inset 0 0 30px rgba(255, 0, 102, 0.2);
+        }
+
+        .certificate h1 {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px currentColor;
+        }
+
+        .certificate p {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+
+        .cert-btn-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .certificate button {
+            padding: 15px 30px;
+            font-size: 16px;
+            font-family: 'Press Start 2P', monospace;
+            background: transparent;
+            color: currentColor;
+            border: 2px solid currentColor;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all .2s;
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        .certificate button:hover {
+            background: currentColor;
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        #confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <!-- FORM -->
+    <div id="formScreen">
+        <div class="form-card">
+            <div class="form-label-tag">FORM // GP-001</div>
+            <h1 class="form-title">GATEPASS REQUEST</h1>
+            <div class="form-divider"></div>
+            <div class="input-group">
+                <label class="input-label">▸ STUDENT NAME</label>
+                <input type="text" id="studentName" class="cyber-input" placeholder="Enter your full name..."
+                    maxlength="40">
+            </div>
+            <div class="input-group">
+                <label class="input-label">▸ REASON FOR EXIT</label>
+                <textarea id="reason" class="cyber-textarea" placeholder="State your reason..."
+                    maxlength="200"></textarea>
+                <div class="char-counter"><span id="charCount">0</span> / 200</div>
+            </div>
+            <div class="input-group">
+                <label class="input-label">▸ URGENCY LEVEL</label>
+                <div class="urgency-row">
+                    <button class="urgency-btn casual" data-level="casual">CASUAL</button>
+                    <button class="urgency-btn urgent" data-level="urgent">URGENT</button>
+                    <button class="urgency-btn life" data-level="life">LIFE / DEATH</button>
+                </div>
+            </div>
+            <button class="submit-btn" id="submitBtn">SUBMIT REQUEST →</button>
+            <div class="form-error" id="formError"></div>
+        </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="loadingScreen">
+        <div class="ld-title">▸ LOADING GAME</div>
+        <div class="ld-spinner"></div>
+        <div class="ld-bar">
+            <div class="ld-bar-fill"></div>
+        </div>
+    </div>
+
+    <!-- TITLE -->
+    <div id="title">
+        <div class="grid-bg"></div>
+        <h1>UNIVERSITY<br>GATEPASS<br>RUNNER</h1>
+        <div class="subtitle">&gt; CYBER EDITION v2.0 _</div>
+        <div class="player-info" id="playerInfoDisplay"></div>
+        <div class="card-row">
+            <div class="info-card pink"><span class="icon">◈</span>
+                <div class="label">COLLECT</div>
+                <div class="desc">750 PTS<br>OF ID CARDS</div>
+            </div>
+            <div class="info-card yellow"><span class="icon">◢◣</span>
+                <div class="label">DODGE</div>
+                <div class="desc">GUARDS<br>BARRICADES</div>
+            </div>
+            <div class="info-card blue"><span class="icon">▲</span>
+                <div class="label">JUMP</div>
+                <div class="desc">THE MAIN<br>GATE</div>
+            </div>
+        </div>
+        <button id="startBtn" onclick="startGame()">▶ START</button>
+    </div>
+
+    <div id="hud" style="display:none;">
+        <div>SCORE: <span id="score">0</span></div>
+        <div style="font-size:10px;margin-top:5px;">GOAL: 750 PTS</div>
+        <div id="progress">
+            <div id="progressBar"></div>
+        </div>
+    </div>
+
+    <div id="guzarWarning" style="display:none;">🚔 GUZAR ON YOUR TAIL 🚔</div>
+    <div id="instructions" style="display:none;">← → / A,D : LANES &nbsp;|&nbsp; SPACE : JUMP</div>
+    <div id="gateAlert">⚠ MAIN GATE - JUMP! ⚠</div>
+
+    <div id="endScreen">
+        <canvas id="confetti"></canvas>
+        <div id="certificate" class="certificate"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ===== FORM =====
+        let playerData = { name: '', reason: '', urgency: '' };
+
+        // Pre-fill from portal sessionStorage if available
+        const rawUser = sessionStorage.getItem('gp_user');
+        if (rawUser) {
+            const u = JSON.parse(rawUser);
+            if (u.displayName) {
+                document.getElementById('studentName').value = u.displayName;
+                playerData.name = u.displayName;
+            }
+        }
+
+        const reasonInput = document.getElementById('reason');
+        reasonInput.addEventListener('input', () => {
+            const n = reasonInput.value.length;
+            document.getElementById('charCount').textContent = n;
+            document.getElementById('charCount').style.color = n > 180 ? '#ff0066' : '#00f0ff';
+        });
+        document.querySelectorAll('.urgency-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.urgency-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                playerData.urgency = btn.dataset.level;
+            });
+        });
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            const name = document.getElementById('studentName').value.trim();
+            const reason = reasonInput.value.trim();
+            const err = document.getElementById('formError');
+            if (!name) { err.textContent = '⚠ ENTER YOUR NAME, CADET'; return; }
+            if (!reason) { err.textContent = '⚠ REASON FIELD REQUIRED'; return; }
+            if (!playerData.urgency) { err.textContent = '⚠ SELECT URGENCY LEVEL'; return; }
+            playerData.name = name; playerData.reason = reason; err.textContent = '';
+
+            document.getElementById('formScreen').style.display = 'none';
+            const ls = document.getElementById('loadingScreen');
+            ls.style.display = 'flex';
+
+            setTimeout(() => {
+                ls.style.display = 'none';
+                document.getElementById('title').style.display = 'flex';
+                const uc = { casual: '#00ff88', urgent: '#ffff00', life: '#ff0066' };
+                document.getElementById('playerInfoDisplay').innerHTML =
+                    `CADET: <span>${playerData.name.toUpperCase()}</span> &nbsp;|&nbsp; STATUS: <span style="color:${uc[playerData.urgency]}">${playerData.urgency.toUpperCase()}</span>`;
+            }, 1400);
+        });
+
+        // ===== GAME =====
+        let scene, camera, renderer, player, guzar;
+        let obstacles = [], cards = [], buildings = [];
+        let gameSpeed = 0.4, score = 0, gameRunning = false, playerLane = 0;
+        const lanePositions = [-2.5, 0, 2.5];
+        let playerY = 0, playerVY = 0, isJumping = false;
+        let mainGate = null, gateSpawned = false, gameEnded = false;
+        let clock, groundSegments = [], guzarDistance = 8;
+        let spawnTimer = 0, buildingTimer = 0, runCycle = 0;
+        const TARGET_SCORE = 750;
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0520);
+            scene.fog = new THREE.Fog(0x1a0a40, 25, 90);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 4, 8); camera.lookAt(0, 1, 0);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.body.appendChild(renderer.domElement);
+            clock = new THREE.Clock();
+
+            scene.add(new THREE.AmbientLight(0x4040aa, 0.5));
+            const sun = new THREE.DirectionalLight(0xff66ff, 0.6); sun.position.set(10, 20, 5); scene.add(sun);
+            const cyan = new THREE.DirectionalLight(0x00f0ff, 0.5); cyan.position.set(-10, 15, -5); scene.add(cyan);
+
+            for (let i = 0; i < 6; i++) createGroundSegment(-i * 20);
+            createPlayer(); createGuzar();
+            for (let i = 0; i < 20; i++) spawnBuilding(-i * 8);
+            window.addEventListener('keydown', onKey);
+            window.addEventListener('resize', onResize);
+        }
+
+        function createGroundSegment(z) {
+            const g = new THREE.Group();
+            const path = new THREE.Mesh(new THREE.PlaneGeometry(10, 20), new THREE.MeshStandardMaterial({ color: 0x1a1a2e }));
+            path.rotation.x = -Math.PI / 2; g.add(path);
+            for (let i = 0; i < 5; i++) {
+                const lg = new THREE.PlaneGeometry(0.15, 2);
+                const l1 = new THREE.Mesh(lg, new THREE.MeshBasicMaterial({ color: 0xff00ff }));
+                l1.rotation.x = -Math.PI / 2; l1.position.set(-1.25, 0.01, -8 + i * 4); g.add(l1);
+                const l2 = new THREE.Mesh(lg, new THREE.MeshBasicMaterial({ color: 0x00f0ff }));
+                l2.rotation.x = -Math.PI / 2; l2.position.set(1.25, 0.01, -8 + i * 4); g.add(l2);
+            }
+            const eg = new THREE.PlaneGeometry(0.3, 20);
+            const eL = new THREE.Mesh(eg, new THREE.MeshBasicMaterial({ color: 0xff00ff }));
+            eL.rotation.x = -Math.PI / 2; eL.position.set(-5, 0.02, 0); g.add(eL);
+            const eR = new THREE.Mesh(eg, new THREE.MeshBasicMaterial({ color: 0x00f0ff }));
+            eR.rotation.x = -Math.PI / 2; eR.position.set(5, 0.02, 0); g.add(eR);
+            const gg = new THREE.PlaneGeometry(20, 20);
+            const gm = new THREE.MeshStandardMaterial({ color: 0x0a0a25 });
+            const gL = new THREE.Mesh(gg, gm); gL.rotation.x = -Math.PI / 2; gL.position.set(-15, -0.01, 0); g.add(gL);
+            const gR = new THREE.Mesh(gg, gm); gR.rotation.x = -Math.PI / 2; gR.position.set(15, -0.01, 0); g.add(gR);
+            g.position.z = z; scene.add(g); groundSegments.push(g);
+        }
+
+        function createTextSprite(text, color = '#00ff88') {
+            const cv = document.createElement('canvas'); cv.width = 256; cv.height = 80;
+            const ctx = cv.getContext('2d');
+            ctx.fillStyle = 'rgba(0,20,0,0.85)'; ctx.fillRect(0, 0, 256, 80);
+            ctx.strokeStyle = color; ctx.lineWidth = 4; ctx.strokeRect(4, 4, 248, 72);
+            ctx.shadowColor = color; ctx.shadowBlur = 15; ctx.fillStyle = color;
+            ctx.font = 'bold 42px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, 128, 40);
+            const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true }));
+            sp.scale.set(2, 0.625, 1); return sp;
+        }
+
+        function createPlayer() {
+            player = new THREE.Group();
+            const addBox = (w, h, d, color, x, y, z, name) => {
+                const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color }));
+                m.position.set(x, y, z); if (name) m.name = name; player.add(m); return m;
+            };
+            addBox(0.6, 0.7, 0.4, 0x00f0ff, 0, 1.0, 0);
+            addBox(0.4, 0.4, 0.4, 0xffd1a4, 0, 1.55, 0);
+            addBox(0.42, 0.12, 0.42, 0x222222, 0, 1.78, 0);
+            addBox(0.55, 0.7, 0.25, 0xff00ff, 0, 1.0, -0.32);
+            addBox(0.55, 0.3, 0.42, 0x222244, 0, 0.5, 0);
+            addBox(0.22, 0.5, 0.22, 0xffd1a4, -0.15, 0.25, 0, 'legL');
+            addBox(0.22, 0.5, 0.22, 0xffd1a4, 0.15, 0.25, 0, 'legR');
+            addBox(0.26, 0.12, 0.32, 0xffffff, -0.15, 0.06, 0.05, 'shoeL');
+            addBox(0.26, 0.12, 0.32, 0xffffff, 0.15, 0.06, 0.05, 'shoeR');
+            addBox(0.18, 0.55, 0.2, 0xffd1a4, -0.4, 0.95, 0, 'armL');
+            addBox(0.18, 0.55, 0.2, 0xffd1a4, 0.4, 0.95, 0, 'armR');
+            player.position.set(0, 0, 2); scene.add(player);
+        }
+
+        function createGuzar() {
+            guzar = new THREE.Group();
+            const addBox = (w, h, d, color, x, y, z, name, emissive, ei) => {
+                const mat = new THREE.MeshStandardMaterial({ color, emissive: emissive || 0, emissiveIntensity: ei || 0 });
+                const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+                m.position.set(x, y, z); if (name) m.name = name; guzar.add(m); return m;
+            };
+            addBox(0.75, 0.9, 0.5, 0x2d5a2d, 0, 0.95, 0, null, 0x113311, 0.3);
+            addBox(0.78, 0.12, 0.52, 0x1a1a1a, 0, 0.6, 0);
+            addBox(0.15, 0.12, 0.05, 0xffd700, 0, 0.6, 0.27, null, 0x886600, 0.5);
+            addBox(0.2, 0.08, 0.5, 0xffd700, -0.28, 1.32, 0, null, 0x665500, 0.3);
+            addBox(0.2, 0.08, 0.5, 0xffd700, 0.28, 1.32, 0, null, 0x665500, 0.3);
+            addBox(0.15, 0.15, 0.05, 0xffd700, -0.18, 1.1, 0.27, null, 0x886600, 0.6);
+            addBox(0.42, 0.42, 0.42, 0xddb088, 0, 1.6, 0);
+            addBox(0.46, 0.18, 0.46, 0x1f4a1f, 0, 1.9, 0);
+            addBox(0.46, 0.05, 0.18, 0x111111, 0, 1.83, 0.3);
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const eL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.05), eyeMat); eL.position.set(-0.1, 1.65, 0.22); guzar.add(eL);
+            const eR = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.05), eyeMat); eR.position.set(0.1, 1.65, 0.22); guzar.add(eR);
+            addBox(0.28, 0.06, 0.06, 0x000000, 0, 1.5, 0.22);
+            addBox(0.27, 0.65, 0.27, 0x2d5a2d, -0.17, 0.32, 0, 'legL');
+            addBox(0.27, 0.65, 0.27, 0x2d5a2d, 0.17, 0.32, 0, 'legR');
+            addBox(0.3, 0.15, 0.35, 0x000000, -0.17, 0.07, 0.04, 'bootL');
+            addBox(0.3, 0.15, 0.35, 0x000000, 0.17, 0.07, 0.04, 'bootR');
+            addBox(0.22, 0.62, 0.22, 0x2d5a2d, -0.48, 1.0, 0, 'armL');
+            addBox(0.22, 0.62, 0.22, 0x2d5a2d, 0.48, 1.0, 0, 'armR');
+            const tag = createTextSprite('GUZAR', '#00ff88'); tag.position.y = 2.6; guzar.add(tag);
+            const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.3, 4), new THREE.MeshBasicMaterial({ color: 0x00ff88 }));
+            arrow.rotation.x = Math.PI; arrow.position.y = 2.25; arrow.name = 'arrow'; guzar.add(arrow);
+            guzar.position.set(0, 0, guzarDistance); scene.add(guzar);
+        }
+
+        function spawnBuilding(z) {
+            [-1, 1].forEach(s => {
+                const h = 5 + Math.random() * 12, w = 2.5 + Math.random() * 2.5, d = 3 + Math.random() * 2;
+                const xPos = s * (7 + Math.random() * 4);
+                const bc = [0x1a1030, 0x150525, 0x201040, 0x100525, 0x251535];
+                const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: bc[Math.floor(Math.random() * bc.length)] }));
+                b.position.set(xPos, h / 2, z); scene.add(b); buildings.push(b);
+                const wc = [0xff00ff, 0x00f0ff, 0xffff00, 0xff0066, 0x00ff88];
+                for (let r = 0; r < Math.floor(h / 1.2); r++) {
+                    for (let c = 0; c < 3; c++) {
+                        if (Math.random() < 0.6) {
+                            const win = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.6), new THREE.MeshBasicMaterial({ color: wc[Math.floor(Math.random() * wc.length)] }));
+                            win.position.set(xPos + (s > 0 ? -w / 2 - 0.01 : w / 2 + 0.01), 0.8 + r * 1.2, z - d / 2 + 0.5 + c * (d / 3));
+                            win.rotation.y = s > 0 ? -Math.PI / 2 : Math.PI / 2; scene.add(win); buildings.push(win);
+                        }
+                    }
+                }
+            });
+        }
+
+        function spawnObstacle(z) {
+            const lane = Math.floor(Math.random() * 3) - 1, type = Math.random();
+            let obs;
+            if (type < 0.4) {
+                obs = new THREE.Group();
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1, 0.5), new THREE.MeshStandardMaterial({ color: 0x224422 }));
+                body.position.y = 1; obs.add(body);
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.45), new THREE.MeshStandardMaterial({ color: 0xffd1a4 }));
+                head.position.y = 1.75; obs.add(head);
+                const cap = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.15, 0.5), new THREE.MeshStandardMaterial({ color: 0x111111 }));
+                cap.position.y = 2.05; obs.add(cap);
+                obs.userData.type = 'guard';
+            } else if (type < 0.75) {
+                obs = new THREE.Group();
+                const bm = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+                const bw = new THREE.MeshStandardMaterial({ color: 0xffffff });
+                const bg = new THREE.BoxGeometry(2, 0.25, 0.15);
+                const b1 = new THREE.Mesh(bg, bm); b1.position.y = 0.9; obs.add(b1);
+                const b2 = new THREE.Mesh(bg, bw); b2.position.y = 0.6; obs.add(b2);
+                const b3 = new THREE.Mesh(bg, bm); b3.position.y = 0.3; obs.add(b3);
+                obs.userData.type = 'barricade';
+            } else {
+                obs = new THREE.Group();
+                const box = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.5, 0.7), new THREE.MeshStandardMaterial({ color: 0x8b4513 }));
+                box.position.y = 0.25; obs.add(box);
+                obs.userData.type = 'papers';
+            }
+            obs.position.x = lanePositions[lane + 1]; obs.position.z = z;
+            scene.add(obs); obstacles.push(obs);
+        }
+
+        function spawnCard(z) {
+            const lane = Math.floor(Math.random() * 3) - 1;
+            const card = new THREE.Group();
+            const c = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.7, 0.05), new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffaa00, emissiveIntensity: 0.8 }));
+            card.add(c);
+            const photo = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.06), new THREE.MeshStandardMaterial({ color: 0x00f0ff }));
+            photo.position.y = 0.1; card.add(photo);
+            card.position.set(lanePositions[lane + 1], 1.2, z);
+            scene.add(card); cards.push(card);
+        }
+
+        function spawnMainGate(z) {
+            const gate = new THREE.Group();
+            const bm = new THREE.MeshStandardMaterial({ color: 0x444466, metalness: 0.8, roughness: 0.3, emissive: 0xff00ff, emissiveIntensity: 0.3 });
+            const bar = new THREE.Mesh(new THREE.BoxGeometry(10, 1.5, 0.3), bm); bar.position.y = 1.5; gate.add(bar);
+            const pm = new THREE.MeshStandardMaterial({ color: 0x222244, emissive: 0x00f0ff, emissiveIntensity: 0.2 });
+            const pL = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), pm); pL.position.set(-5, 2, 0); gate.add(pL);
+            const pR = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), pm); pR.position.set(5, 2, 0); gate.add(pR);
+            const sign = new THREE.Mesh(new THREE.BoxGeometry(8, 0.8, 0.2), new THREE.MeshStandardMaterial({ color: 0xff00ff, emissive: 0xff00ff, emissiveIntensity: 0.8 }));
+            sign.position.y = 4.4; gate.add(sign);
+            const lm = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const l1 = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), lm); l1.position.set(-3, 4.4, 0.2); gate.add(l1);
+            const l2 = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), lm); l2.position.set(3, 4.4, 0.2); gate.add(l2);
+            gate.userData.lights = [l1, l2];
+            gate.position.z = z; gate.userData.passed = false;
+            scene.add(gate); mainGate = gate;
+            document.getElementById('gateAlert').style.display = 'block';
+        }
+
+        function createConfetti() {
+            const cv = document.getElementById('confetti');
+            cv.width = window.innerWidth; cv.height = window.innerHeight;
+            const ctx = cv.getContext('2d');
+            const pieces = [], colors = ['#ff00ff', '#00f0ff', '#ffff00', '#ff0066', '#00ff88'];
+            for (let i = 0; i < 120; i++) pieces.push({ x: Math.random() * cv.width, y: Math.random() * cv.height - cv.height, vx: (Math.random() - .5) * 8, vy: Math.random() * 5 + 5, rotation: Math.random() * Math.PI * 2, vr: (Math.random() - .5) * .2, size: Math.random() * 5 + 4, color: colors[Math.floor(Math.random() * colors.length)], life: 1 });
+            function draw() {
+                ctx.clearRect(0, 0, cv.width, cv.height);
+                for (const p of pieces) { p.y += p.vy; p.x += p.vx; p.rotation += p.vr; p.vy += 0.1; p.life -= 0.008; ctx.save(); ctx.globalAlpha = p.life; ctx.translate(p.x, p.y); ctx.rotate(p.rotation); ctx.shadowBlur = 15; ctx.shadowColor = p.color; ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size); ctx.restore(); }
+                if (pieces.some(p => p.life > 0)) requestAnimationFrame(draw);
+            }
+            draw();
+        }
+
+        function onKey(e) {
+            if (!gameRunning) return;
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') { if (playerLane > -1) playerLane--; }
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') { if (playerLane < 1) playerLane++; }
+            if (e.code === 'Space' && !isJumping) { playerVY = 0.35; isJumping = true; }
+        }
+        function onResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
+
+        function update() {
+            if (!gameRunning) return;
+            clock.getDelta();
+            const dt = 0.016;
+            player.position.x += (lanePositions[playerLane + 1] - player.position.x) * 0.2;
+            if (isJumping) { playerY += playerVY; playerVY -= 0.018; if (playerY <= 0) { playerY = 0; playerVY = 0; isJumping = false; } }
+            player.position.y = playerY;
+            runCycle += dt * 15;
+            if (!isJumping) {
+                ['legL', 'legR', 'shoeL', 'shoeR'].forEach((n, i) => { player.getObjectByName(n).rotation.x = Math.sin(runCycle + (i % 2 ? Math.PI : 0)) * 0.6; });
+                player.getObjectByName('armL').rotation.x = -Math.sin(runCycle) * 0.5;
+                player.getObjectByName('armR').rotation.x = Math.sin(runCycle) * 0.5;
+            }
+            guzarDistance += (7 - guzarDistance) * 0.02;
+            guzar.position.z = player.position.z + guzarDistance;
+            guzar.position.x += (player.position.x - guzar.position.x) * 0.04;
+            ['legL', 'legR', 'bootL', 'bootR'].forEach((n, i) => { guzar.getObjectByName(n).rotation.x = Math.sin(runCycle * 1.1 + (i % 2 ? Math.PI : 0)) * 0.7; });
+            guzar.getObjectByName('armL').rotation.x = -Math.sin(runCycle * 1.1) * 0.6;
+            guzar.getObjectByName('armR').rotation.x = Math.sin(runCycle * 1.1) * 0.6;
+            const arrow = guzar.getObjectByName('arrow');
+            if (arrow) arrow.position.y = 2.25 + Math.sin(Date.now() * .005) * .1;
+            document.getElementById('guzarWarning').style.display = 'block';
+            groundSegments.forEach(g => { g.position.z += gameSpeed; if (g.position.z > 30) g.position.z -= 120; });
+            buildings.forEach(b => b.position.z += gameSpeed);
+            buildings = buildings.filter(b => { if (b.position.z > 20) { scene.remove(b); return false; } return true; });
+            buildingTimer += dt;
+            if (buildingTimer > 0.4) { buildingTimer = 0; spawnBuilding(-90); }
+            if (!gateSpawned) {
+                spawnTimer += dt;
+                if (spawnTimer > 0.6) { spawnTimer = 0; if (Math.random() < 0.6) spawnObstacle(-60); if (Math.random() < 0.7) spawnCard(-60); }
+            }
+            obstacles.forEach(o => o.position.z += gameSpeed);
+            obstacles = obstacles.filter(o => { if (o.position.z > 10) { scene.remove(o); return false; } return true; });
+            cards.forEach(c => { c.position.z += gameSpeed; c.rotation.y += 0.1; c.position.y = 1.2 + Math.sin(Date.now() * .005 + c.position.z) * .15; });
+            cards = cards.filter(c => { if (c.position.z > 10) { scene.remove(c); return false; } return true; });
+            cards.forEach((c, i) => {
+                if (Math.abs(c.position.x - player.position.x) < 0.8 && Math.abs(c.position.z - player.position.z) < 0.8) {
+                    scene.remove(c); cards.splice(i, 1); score += 37.5; updateHUD();
+                }
+            });
+            obstacles.forEach(o => {
+                if (Math.abs(o.position.x - player.position.x) < 0.7 && Math.abs(o.position.z - player.position.z) < 0.7) {
+                    if (o.userData.type === 'barricade' && playerY > 1.2) return;
+                    if (o.userData.type === 'papers' && playerY > 1.1) return;
+                    if (o.userData.type === 'guard' && playerY > 1.8) return;
+                    const msgs = { guard: 'a Security Guard!', barricade: 'a Barricade!', papers: 'a Pile of Papers!' };
+                    endGame(false, 'You crashed into ' + msgs[o.userData.type]);
+                }
+            });
+            if (score >= TARGET_SCORE && !gateSpawned) {
+                gateSpawned = true;
+                obstacles.forEach(o => scene.remove(o)); cards.forEach(c => scene.remove(c));
+                obstacles = []; cards = []; spawnMainGate(-50);
+            }
+            if (mainGate) {
+                mainGate.position.z += gameSpeed;
+                const t = Date.now() / 200;
+                mainGate.userData.lights.forEach(l => l.material.color.setHex(Math.sin(t) > 0 ? 0xff0000 : 0x440000));
+                if (!mainGate.userData.passed && mainGate.position.z > 1 && mainGate.position.z < 4) {
+                    mainGate.userData.passed = true;
+                    endGame(playerY > 1.6, 'GATEPASS ' + (playerY > 1.6 ? 'APPROVED!' : 'BLOCKED!'));
+                }
+            }
+        }
+
+        function updateHUD() {
+            document.getElementById('score').textContent = Math.floor(score);
+            document.getElementById('progressBar').style.width = Math.min(100, (score / TARGET_SCORE) * 100) + '%';
+        }
+
+        function endGame(success, msg) {
+            if (gameEnded) return;
+            gameEnded = true; gameRunning = false;
+            document.getElementById('gateAlert').style.display = 'none';
+            document.getElementById('guzarWarning').style.display = 'none';
+            const cert = document.getElementById('certificate');
+            if (success) {
+                createConfetti();
+                cert.className = 'certificate approved';
+                cert.innerHTML = `
+      <h1>✅ APPROVED</h1>
+      <p>CADET <span style="color:#ffff00">${playerData.name.toUpperCase()}</span></p>
+      <p style="font-size:30px;margin:20px 0;color:#ffff00;text-shadow:0 0 15px #ffff00;">🍔 GUZAR KA HALWA 🍔</p>
+      <p>${msg}</p>
+      <p style="font-size:28px;margin-top:20px;">FINAL SCORE: ${Math.floor(score)}</p>
+      <div class="cert-btn-row">
+        <button onclick="location.reload()">RUN AGAIN</button>
+        <button onclick="goToPortal()">◀ BACK TO PORTAL</button>
+      </div>`;
+            } else {
+                cert.className = 'certificate rejected';
+                cert.innerHTML = `
+      <h1>❌ BLOCKED</h1>
+      <p>CADET <span style="color:#ff0066">${playerData.name.toUpperCase()}</span></p>
+      <p style="font-size:30px;margin:20px 0;color:#ff0066;text-shadow:0 0 15px #ff0066;">ABB LAGEGI DC</p>
+      <p>${msg}</p>
+      <p style="font-size:28px;margin-top:20px;">SCORE: ${Math.floor(score)} / ${TARGET_SCORE}</p>
+      <div class="cert-btn-row">
+        <button onclick="location.reload()">TRY AGAIN</button>
+        <button onclick="goToPortal()">◀ BACK TO PORTAL</button>
+      </div>`;
+            }
+            document.getElementById('endScreen').style.display = 'flex';
+        }
+
+        function goToPortal() {
+            // If running inside iframe in portal.html, post message; otherwise redirect
+            if (window.parent !== window) {
+                window.parent.postMessage('goToGatepass', '*');
+            } else {
+                window.location.href = 'portal.html';
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            update();
+            renderer.render(scene, camera);
+        }
+
+        function startGame() {
+            document.getElementById('title').style.display = 'none';
+            document.getElementById('hud').style.display = 'block';
+            document.getElementById('instructions').style.display = 'block';
+            init(); gameRunning = true; animate();
+        }
+    </script>
+</body>
+
+</html>
